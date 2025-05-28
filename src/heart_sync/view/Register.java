@@ -1,5 +1,7 @@
 package heart_sync.view;
 
+import heart_sync.dao.UserDAO;
+import heart_sync.model.User;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
@@ -344,11 +346,25 @@ public class Register extends JFrame {
         // Continue button action listener
         continueButton.addActionListener(e -> {
             if (validateForm()) {
-                JOptionPane.showMessageDialog(this, 
-                    "Registration successful!\nUsername: " + usernameField.getText(),
-                    "Success", 
-                    JOptionPane.INFORMATION_MESSAGE);
-                dispose();
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+                String userType = userRadio.isSelected() ? "USER" : "ADMIN";
+                
+                User newUser = new User(username, password, userType);
+                UserDAO userDAO = new UserDAO();
+                
+                if (userDAO.createUser(newUser)) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Registration successful!\nUsername: " + username,
+                        "Success", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                        "Registration failed. Please try again.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
