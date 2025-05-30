@@ -203,43 +203,21 @@ public class resetview extends javax.swing.JFrame {
     }//GEN-LAST:event_jRadioButton2ActionPerformed
 
     private void setupComponents() {
-        // Convert text fields to password fields
-        JPasswordField newPasswordField = new JPasswordField();
-        JPasswordField confirmPasswordField = new JPasswordField();
-        
-        // Copy properties from existing text fields
-        newPasswordField.setBounds(newpassword.getBounds());
-        confirmPasswordField.setBounds(confirmpassword.getBounds());
-        
-        // Remove old text fields and add new password fields
-        jPanel1.remove(newpassword);
-        jPanel1.remove(confirmpassword);
-        jPanel1.add(newPasswordField);
-        jPanel1.add(confirmPasswordField);
-        
-        // Update references
-        newpassword = newPasswordField;
-        confirmpassword = confirmPasswordField;
-        
-        // Set initial properties
-        ((JPasswordField)newpassword).setEchoChar('•');
-        ((JPasswordField)confirmpassword).setEchoChar('•');
+        // Set initial properties for password fields
+        newpassword.setEchoChar('•');
+        confirmpassword.setEchoChar('•');
         
         // Set placeholder tooltips
         newpassword.setToolTipText("Enter new password");
         confirmpassword.setToolTipText("Confirm your new password");
         
         // Add action listeners for buttons
-        Continue.addActionListener(evt -> handleContinueButton());
-        Back.addActionListener(evt -> handleBackButton());
+        Continue.addActionListener(e -> handleContinueButton());
+        Back.addActionListener(e -> handleBackButton());
         
         // Add action listeners for radio buttons
-        jRadioButton2.addActionListener(evt -> togglePasswordVisibility((JPasswordField)newpassword, jRadioButton2));
-        jRadioButton1.addActionListener(evt -> togglePasswordVisibility((JPasswordField)confirmpassword, jRadioButton1));
-        
-        // Revalidate and repaint the panel to show changes
-        jPanel1.revalidate();
-        jPanel1.repaint();
+        jRadioButton2.addActionListener(e -> togglePasswordVisibility(newpassword, jRadioButton2));
+        jRadioButton1.addActionListener(e -> togglePasswordVisibility(confirmpassword, jRadioButton1));
     }
     
     private void togglePasswordVisibility(JPasswordField passwordField, javax.swing.JRadioButton button) {
@@ -253,8 +231,11 @@ public class resetview extends javax.swing.JFrame {
     }
     
     private void handleContinueButton() {
-        String newPass = newpassword.getText();
-        String confirmPass = confirmpassword.getText();
+        char[] newPassChars = newpassword.getPassword();
+        char[] confirmPassChars = confirmpassword.getPassword();
+        
+        String newPass = new String(newPassChars);
+        String confirmPass = new String(confirmPassChars);
         
         // Validate password
         if (newPass.isEmpty() || confirmPass.isEmpty()) {
@@ -300,15 +281,23 @@ public class resetview extends javax.swing.JFrame {
             return;
         }
         
+        // Show success message and handle password reset
+        boolean resetSuccess = true;
         if (controller != null) {
-            if (controller.resetPassword(newPass)) {
-                JOptionPane.showMessageDialog(this, 
-                    "Password reset successful!", 
-                    "Success", 
-                    JOptionPane.INFORMATION_MESSAGE);
-                this.dispose();
-            }
+            resetSuccess = controller.resetPassword(newPass);
         }
+        
+        if (resetSuccess) {
+            JOptionPane.showMessageDialog(this, 
+                "Your password is reset!", 
+                "Success", 
+                JOptionPane.INFORMATION_MESSAGE);
+            this.dispose(); // Close the window after successful reset
+        }
+        
+        // Clear the password arrays for security
+        java.util.Arrays.fill(newPassChars, '0');
+        java.util.Arrays.fill(confirmPassChars, '0');
     }
     
     private void handleBackButton() {
@@ -357,13 +346,13 @@ public class resetview extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Back;
     private javax.swing.JButton Continue;
-    private javax.swing.JTextField confirmpassword;
+    private javax.swing.JPasswordField confirmpassword;
     private javax.swing.JLabel confirmPasswordLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JTextField newpassword;
+    private javax.swing.JPasswordField newpassword;
     private javax.swing.JLabel newPasswordLabel;
     // End of variables declaration//GEN-END:variables
 }

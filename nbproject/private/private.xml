@@ -6,6 +6,10 @@
             <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/Heartsync.java</file>
             <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/controller/ResetController.java</file>
             <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/view/resetview.java</file>
+            <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/database/DatabaseUtil.java</file>
+            <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/database/DatabaseConfig.java</file>
+            <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/dao/UserDAO.java</file>
+            <file>file:/C:/Users/HP/OneDrive/Documents/NetBeansProjects/heartsync/src/heartsync/dao/UserProfileDAO.java</file>
         </group>
     </open-files>
 </project-private>
