@@ -32,7 +32,7 @@ public class MySqlConnection {
                     stmt.executeUpdate("USE " + DB_NAME);
                     
                     // Create contacts table
-                    String createTableSQL = """
+                    String createContactsTableSQL = """
                         CREATE TABLE IF NOT EXISTS contacts (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             full_name VARCHAR(100) NOT NULL,
@@ -41,7 +41,21 @@ public class MySqlConnection {
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         )
                     """;
-                    stmt.executeUpdate(createTableSQL);
+                    stmt.executeUpdate(createContactsTableSQL);
+                    
+                    // Create users table
+                    String createUsersTableSQL = """
+                        CREATE TABLE IF NOT EXISTS users (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            username VARCHAR(50) NOT NULL UNIQUE,
+                            password VARCHAR(100) NOT NULL,
+                            email VARCHAR(100) NOT NULL,
+                            security_question VARCHAR(200),
+                            security_answer VARCHAR(200),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """;
+                    stmt.executeUpdate(createUsersTableSQL);
                 }
             }
         } catch (SQLException e) {

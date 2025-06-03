@@ -4,6 +4,7 @@
  */
 package heartsyncdatingapp;
 
+import heartsyncdatingapp.model.LoginFinal;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
@@ -193,10 +194,9 @@ public class HomePage extends JFrame {
         });
         
         loginButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Login functionality coming soon!",
-                "Coming Soon",
-                JOptionPane.INFORMATION_MESSAGE);
+            LoginFinal loginPage = new LoginFinal();
+            loginPage.setLocationRelativeTo(null);
+            loginPage.setVisible(true);
         });
         
         return navPanel;
@@ -330,10 +330,9 @@ public class HomePage extends JFrame {
         
         // Add action listeners
         loginButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Login functionality coming soon!",
-                "Coming Soon",
-                JOptionPane.INFORMATION_MESSAGE);
+            LoginFinal loginPage = new LoginFinal();
+            loginPage.setLocationRelativeTo(null);
+            loginPage.setVisible(true);
         });
         
         createAccountButton.addActionListener(e -> {
