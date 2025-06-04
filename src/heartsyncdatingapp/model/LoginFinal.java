@@ -56,8 +56,8 @@ public class LoginFinal extends javax.swing.JFrame {
     private void setupTextFields() {
         // Username setup
         txtUsername.setText("USERNAME");
-        txtUsername.setForeground(Color.GRAY);
-        
+txtUsername.setForeground(Color.GRAY);
+
         // Password setup
         txtPassword.setText("Enter password");
         txtPassword.setForeground(Color.GRAY);
@@ -97,42 +97,42 @@ public class LoginFinal extends javax.swing.JFrame {
 
     private void setupActionListeners() {
         // Username focus listener
-        txtUsername.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                if (txtUsername.getText().equals("USERNAME")) {
-                    txtUsername.setText("");
-                    txtUsername.setForeground(Color.BLACK);
-                }
-            }
+txtUsername.addFocusListener(new java.awt.event.FocusAdapter() {
+    @Override
+    public void focusGained(java.awt.event.FocusEvent evt) {
+        if (txtUsername.getText().equals("USERNAME")) {
+            txtUsername.setText("");
+            txtUsername.setForeground(Color.BLACK);
+        }
+    }
 
-            @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
+    @Override
+    public void focusLost(java.awt.event.FocusEvent evt) {
                 if (txtUsername.getText().trim().isEmpty()) {
-                    txtUsername.setForeground(Color.GRAY);
-                    txtUsername.setText("USERNAME");
-                }
-            }
-        });
+            txtUsername.setForeground(Color.GRAY);
+            txtUsername.setText("USERNAME");
+        }
+    }
+});
 
         // Password focus listener
-        txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
+txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
+    @Override
+    public void focusGained(java.awt.event.FocusEvent evt) {
                 if (txtPassword.getText().equals("Enter password")) {
-                    txtPassword.setText("");
-                    txtPassword.setForeground(Color.BLACK);
-                }
-            }
+            txtPassword.setText("");
+            txtPassword.setForeground(Color.BLACK);
+        }
+    }
 
             @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
+    public void focusLost(java.awt.event.FocusEvent evt) {
                 if (txtPassword.getText().trim().isEmpty()) {
-                    txtPassword.setForeground(Color.GRAY);
-                    txtPassword.setText("Enter password");
-                }
-            }
-        });
+            txtPassword.setForeground(Color.GRAY);
+            txtPassword.setText("Enter password");
+        }
+    }
+});
 
         // Back button action
         btnBack.addActionListener(e -> dispose());
@@ -140,17 +140,17 @@ public class LoginFinal extends javax.swing.JFrame {
         // Login button action
         btnLogin.addActionListener(e -> performLogin());
 
-        lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // This is what happens when clicked
-                JOptionPane.showMessageDialog(null, 
-                    "Password reset instructions sent to your  Username, Favorite Color?, First School?.",
-                    "Forgot Password",
-                    JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        // This is what happens when clicked
+        JOptionPane.showMessageDialog(null, 
+            "Password reset instructions sent to your  Username, Favorite Color?, First School?.",
+            "Forgot Password",
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+});
 
         // Ensure initial state of password field
         SwingUtilities.invokeLater(() -> {
@@ -186,7 +186,7 @@ public class LoginFinal extends javax.swing.JFrame {
                 
             if (username.isEmpty() || username.equals("USERNAME")) {
                 txtUsername.requestFocus();
-            } else {
+    } else {
                 txtPassword.requestFocus();
             }
             return;
@@ -209,7 +209,7 @@ public class LoginFinal extends javax.swing.JFrame {
                 txtPassword.setText("");
                 showHideController.reset();
                 txtPassword.requestFocus();
-            }
+    }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, 
                 "Database error: " + ex.getMessage(), 
@@ -475,7 +475,7 @@ public class LoginFinal extends javax.swing.JFrame {
             txtUsername.requestFocus();
             return;
         }
-
+        
         // Password validation
         if (password.length() < 6) {
             JOptionPane.showMessageDialog(this,

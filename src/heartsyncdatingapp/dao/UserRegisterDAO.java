@@ -21,7 +21,7 @@ public class UserRegisterDAO {
     }
     
     public boolean createUser(User user) {
-        String sql = "INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, user_type, date_of_birth) VALUES (?, ?, ?, ?)";
         
         try {
             if (connection == null || connection.isClosed()) {
@@ -32,6 +32,7 @@ public class UserRegisterDAO {
                 stmt.setString(1, user.getUsername());
                 stmt.setString(2, user.getPassword());
                 stmt.setString(3, user.getUserType());
+                stmt.setString(4, user.getDateOfBirth());
                 
                 return stmt.executeUpdate() > 0;
             }

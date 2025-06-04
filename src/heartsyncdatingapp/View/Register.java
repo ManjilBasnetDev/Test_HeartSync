@@ -1,22 +1,21 @@
 package heartsyncdatingapp.View;
 
+import heartsyncdatingapp.AdminPage;
 import heartsyncdatingapp.dao.UserRegisterDAO;
-import heartsyncdatingapp.model.LoginFinal;
 import heartsyncdatingapp.model.User;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 
 public class Register extends JFrame {
     private static final int WINDOW_RADIUS = 35;
     private static final int FIELD_RADIUS = 35;
     private static final int BUTTON_RADIUS = 35;
     private JPanel mainPanel;
-    private JTextArea usernameField;
-    private JTextArea passwordField;
-    private JTextArea confirmField;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmField;
     private JButton continueButton;
     private JButton backButton;
     private JRadioButton userRadio;
@@ -24,10 +23,6 @@ public class Register extends JFrame {
     private JCheckBox showPassword1;
     private JCheckBox showPassword2;
     private Point mouseDownCompCoords;
-    
-    // Add variables to store actual passwords
-    private String actualPassword = "";
-    private String actualConfirmPassword = "";
 
     public Register() {
         initComponents();
@@ -56,35 +51,38 @@ public class Register extends JFrame {
         // Title
         JLabel titleLabel = new JLabel("CREATE ACCOUNT");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setForeground(Color.BLACK);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setBounds(0, 40, 400, 40);
         
         // Username field
-        usernameField = new JTextArea();
-        usernameField.setFont(new Font("Segoe UI", 0, 14));
-        usernameField.setBackground(Color.WHITE);
-        usernameField.setForeground(Color.GRAY);
-        usernameField.setLineWrap(true);
-        usernameField.setWrapStyleWord(true);
-        usernameField.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(new Color(200, 200, 200)),
-            BorderFactory.createEmptyBorder(10, 15, 10, 15)));
-        usernameField.setRows(1);
+        usernameField = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), FIELD_RADIUS, FIELD_RADIUS);
+                super.paintComponent(g);
+            }
+        };
+        usernameField.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         usernameField.setBounds(50, 100, 300, 45);
+        usernameField.setOpaque(false);
         
         // Password field
-        passwordField = new JTextArea();
-        passwordField.setFont(new Font("Segoe UI", 0, 14));
-        passwordField.setBackground(Color.WHITE);
-        passwordField.setForeground(Color.GRAY);
-        passwordField.setLineWrap(true);
-        passwordField.setWrapStyleWord(true);
-        passwordField.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(new Color(200, 200, 200)),
-            BorderFactory.createEmptyBorder(10, 15, 10, 15)));
-        passwordField.setRows(1);
+        passwordField = new JPasswordField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), FIELD_RADIUS, FIELD_RADIUS);
+                super.paintComponent(g);
+            }
+        };
+        passwordField.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         passwordField.setBounds(50, 160, 300, 45);
+        passwordField.setOpaque(false);
         
         // Show password checkboxes
         showPassword1 = new JCheckBox("Show");
@@ -95,17 +93,19 @@ public class Register extends JFrame {
         showPassword2.setOpaque(false);
         
         // Confirm password field
-        confirmField = new JTextArea();
-        confirmField.setFont(new Font("Segoe UI", 0, 14));
-        confirmField.setBackground(Color.WHITE);
-        confirmField.setForeground(Color.GRAY);
-        confirmField.setLineWrap(true);
-        confirmField.setWrapStyleWord(true);
-        confirmField.setBorder(BorderFactory.createCompoundBorder(
-            new LineBorder(new Color(200, 200, 200)),
-            BorderFactory.createEmptyBorder(10, 15, 10, 15)));
-        confirmField.setRows(1);
+        confirmField = new JPasswordField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), FIELD_RADIUS, FIELD_RADIUS);
+                super.paintComponent(g);
+            }
+        };
+        confirmField.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         confirmField.setBounds(50, 220, 300, 45);
+        confirmField.setOpaque(false);
         
         // Radio buttons
         userRadio = new JRadioButton("USER");
@@ -121,35 +121,25 @@ public class Register extends JFrame {
         adminRadio.setOpaque(false);
         userRadio.setFont(new Font("Arial", Font.PLAIN, 14));
         adminRadio.setFont(new Font("Arial", Font.PLAIN, 14));
-        userRadio.setForeground(Color.BLACK);
-        adminRadio.setForeground(Color.BLACK);
         
         // Add mouse listener to admin radio button for immediate response
         adminRadio.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int choice = JOptionPane.showConfirmDialog(Register.this,
-                    "Admin registration requires special authorization.\nDo you have an admin access code?",
-                    "Admin Registration",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
+                System.out.println("Admin radio clicked"); // Debug message
+                adminRadio.setSelected(true);
+                userRadio.setSelected(false);
                 
-                if (choice == JOptionPane.YES_OPTION) {
-                    String accessCode = JOptionPane.showInputDialog(Register.this,
-                        "Please enter the admin access code:",
-                        "Admin Access Code",
-                        JOptionPane.QUESTION_MESSAGE);
-                    
-                    if (accessCode == null || !accessCode.equals("3023")) {
-                        JOptionPane.showMessageDialog(Register.this,
-                            "Invalid access code. Switching to regular user registration.",
-                            "Access Denied",
-                            JOptionPane.ERROR_MESSAGE);
-                        userRadio.setSelected(true);
-                    }
-                } else {
-                    userRadio.setSelected(true);
-                }
+                // Create and position admin page before showing it
+                AdminPage adminPage = new AdminPage();
+                Point location = getLocation();
+                adminPage.setLocation(location.x, location.y);
+                
+                // Ensure smooth transition
+                adminPage.setVisible(true);
+                SwingUtilities.invokeLater(() -> {
+                    dispose(); // Dispose after admin page is visible
+                });
             }
         });
         
@@ -249,13 +239,15 @@ public class Register extends JFrame {
         mainPanel.add(continueButton);
         mainPanel.add(backButton);
         
-        // Set placeholder text with black color
+        // Set placeholder text
         usernameField.setText("USERNAME");
         usernameField.setForeground(Color.GRAY);
         passwordField.setText("PASSWORD");
         passwordField.setForeground(Color.GRAY);
+        passwordField.setEchoChar((char)0);
         confirmField.setText("CONFIRM");
         confirmField.setForeground(Color.GRAY);
+        confirmField.setEchoChar((char)0);
         
         // Add main panel to frame
         setContentPane(mainPanel);
@@ -287,28 +279,19 @@ public class Register extends JFrame {
         passwordField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent evt) {
-                if (passwordField.getText().equals("PASSWORD")) {
+                if (String.valueOf(passwordField.getPassword()).equals("PASSWORD")) {
                     passwordField.setText("");
                     passwordField.setForeground(Color.BLACK);
+                    passwordField.setEchoChar('•');
                 }
             }
             
             @Override
             public void focusLost(FocusEvent evt) {
-                if (passwordField.getText().isEmpty()) {
+                if (String.valueOf(passwordField.getPassword()).isEmpty()) {
                     passwordField.setText("PASSWORD");
                     passwordField.setForeground(Color.GRAY);
-                    actualPassword = "";
-                } else if (!passwordField.getText().equals("PASSWORD")) {
-                    actualPassword = passwordField.getText();
-                    if (!showPassword1.isSelected()) {
-                        // Show bullets
-                        StringBuilder hidden = new StringBuilder();
-                        for (int i = 0; i < actualPassword.length(); i++) {
-                            hidden.append("•");
-                        }
-                        passwordField.setText(hidden.toString());
-                    }
+                    passwordField.setEchoChar((char)0);
                 }
             }
         });
@@ -317,61 +300,46 @@ public class Register extends JFrame {
         confirmField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent evt) {
-                if (confirmField.getText().equals("CONFIRM")) {
+                if (String.valueOf(confirmField.getPassword()).equals("CONFIRM")) {
                     confirmField.setText("");
                     confirmField.setForeground(Color.BLACK);
+                    confirmField.setEchoChar('•');
                 }
             }
             
             @Override
             public void focusLost(FocusEvent evt) {
-                if (confirmField.getText().isEmpty()) {
+                if (String.valueOf(confirmField.getPassword()).isEmpty()) {
                     confirmField.setText("CONFIRM");
                     confirmField.setForeground(Color.GRAY);
-                    actualConfirmPassword = "";
-                } else if (!confirmField.getText().equals("CONFIRM")) {
-                    actualConfirmPassword = confirmField.getText();
-                    if (!showPassword2.isSelected()) {
-                        // Show bullets
-                        StringBuilder hidden = new StringBuilder();
-                        for (int i = 0; i < actualConfirmPassword.length(); i++) {
-                            hidden.append("•");
-                        }
-                        confirmField.setText(hidden.toString());
-                    }
+                    confirmField.setEchoChar((char)0);
                 }
             }
         });
         
         // Show password checkboxes
         showPassword1.addActionListener(e -> {
-            if (!passwordField.getText().equals("PASSWORD")) {
-                if (showPassword1.isSelected()) {
-                    // Show actual password
-                    passwordField.setText(actualPassword);
-                } else {
-                    // Show bullets
-                    StringBuilder hidden = new StringBuilder();
-                    for (int i = 0; i < actualPassword.length(); i++) {
-                        hidden.append("•");
-                    }
-                    passwordField.setText(hidden.toString());
+            String pass = String.valueOf(passwordField.getPassword());
+            if (showPassword1.isSelected()) {
+                if (!pass.equals("PASSWORD")) {
+                    passwordField.setEchoChar((char)0);
+                }
+            } else {
+                if (!pass.equals("PASSWORD")) {
+                    passwordField.setEchoChar('•');
                 }
             }
         });
         
         showPassword2.addActionListener(e -> {
-            if (!confirmField.getText().equals("CONFIRM")) {
-                if (showPassword2.isSelected()) {
-                    // Show actual password
-                    confirmField.setText(actualConfirmPassword);
-                } else {
-                    // Show bullets
-                    StringBuilder hidden = new StringBuilder();
-                    for (int i = 0; i < actualConfirmPassword.length(); i++) {
-                        hidden.append("•");
-                    }
-                    confirmField.setText(hidden.toString());
+            String confirm = String.valueOf(confirmField.getPassword());
+            if (showPassword2.isSelected()) {
+                if (!confirm.equals("CONFIRM")) {
+                    confirmField.setEchoChar((char)0);
+                }
+            } else {
+                if (!confirm.equals("CONFIRM")) {
+                    confirmField.setEchoChar('•');
                 }
             }
         });
@@ -380,36 +348,17 @@ public class Register extends JFrame {
         continueButton.addActionListener(e -> {
             if (validateForm()) {
                 String username = usernameField.getText();
-                String password = actualPassword; // Use actual password instead of field text
+                String password = new String(passwordField.getPassword());
                 String userType = userRadio.isSelected() ? "USER" : "ADMIN";
                 
-                // Create a new user object
                 User newUser = new User(username, password, userType);
-                
-                // Create user in database
                 UserRegisterDAO userDAO = new UserRegisterDAO();
-                
-                // Check if username already exists
-                if (userDAO.userExists(username)) {
-                    JOptionPane.showMessageDialog(this,
-                        "Username already exists. Please choose a different username.",
-                        "Registration Error",
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
                 
                 if (userDAO.createUser(newUser)) {
                     JOptionPane.showMessageDialog(this, 
-                        "Registration successful!\nPlease login with your credentials.",
+                        "Registration successful!\nUsername: " + username,
                         "Success", 
                         JOptionPane.INFORMATION_MESSAGE);
-                    
-                    // Open login page
-                    LoginFinal loginPage = new LoginFinal();
-                    loginPage.setLocationRelativeTo(null);
-                    loginPage.setVisible(true);
-                    
-                    // Close register page
                     dispose();
                 } else {
                     JOptionPane.showMessageDialog(this,
@@ -447,7 +396,8 @@ public class Register extends JFrame {
         }
 
         // Check password
-        if (actualPassword.isEmpty() || actualPassword.equals("PASSWORD")) {
+        String password = String.valueOf(passwordField.getPassword());
+        if (password.equals("PASSWORD") || password.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this,
                 "Please enter a password",
                 "Validation Error",
@@ -457,7 +407,8 @@ public class Register extends JFrame {
         }
 
         // Check confirm password
-        if (actualConfirmPassword.isEmpty() || actualConfirmPassword.equals("CONFIRM")) {
+        String confirm = String.valueOf(confirmField.getPassword());
+        if (confirm.equals("CONFIRM") || confirm.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this,
                 "Please confirm your password",
                 "Validation Error",
@@ -466,7 +417,7 @@ public class Register extends JFrame {
             return false;
         }
 
-        if (!actualPassword.equals(actualConfirmPassword)) {
+        if (!password.equals(confirm)) {
             JOptionPane.showMessageDialog(this,
                 "Passwords do not match",
                 "Validation Error",
