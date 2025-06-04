@@ -4,6 +4,15 @@
  */
 package logintestfinal.View;
 
+import java.util.Hashtable;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.util.List;
+import java.lang.StringBuilder;
+import logintestfinal.model.FilterCriteria;
+import logintestfinal.model.User;
+import logintestfinal.dao.FilterDao;
+
 /**
  *
  * @author Edsha
@@ -40,112 +49,150 @@ public class FilterSearch extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("HeartSync - Filter Search");
-        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 182, 193));
-        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("HeartSync");
-        jLabel1.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Non-binary", "Other" }));
-        jComboBox1.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female", "Other" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "High School", "Bachelor's", "Master's", "PhD", "Other" }));
-        jComboBox2.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "High School", "Bachelor", "Ph.D" }));
 
         jSlider1.setMinimum(18);
-        jSlider1.setMaximum(80);
-        jSlider1.setValue(25);
+        jSlider1.setMaximum(78);
+        jSlider1.setValue(28);
         jSlider1.setPaintTicks(true);
         jSlider1.setPaintLabels(true);
         jSlider1.setMajorTickSpacing(10);
         jSlider1.setMinorTickSpacing(5);
+        jSlider1.setBackground(new java.awt.Color(255, 182, 193));
+        
+        // Add labels for all major ticks
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        labelTable.put(18, new JLabel("18"));
+        labelTable.put(28, new JLabel("28"));
+        labelTable.put(38, new JLabel("38"));
+        labelTable.put(48, new JLabel("48"));
+        labelTable.put(58, new JLabel("58"));
+        labelTable.put(68, new JLabel("68"));
+        labelTable.put(78, new JLabel("78"));
+        
+        // Style the labels
+        for (JLabel label : labelTable.values()) {
+            label.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 10));
+        }
+        
+        jSlider1.setLabelTable(labelTable);
+        jSlider1.setPreferredSize(new java.awt.Dimension(300, 45));
+
+        // Add change listener to update age value
+        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jLabel3.setText("Age Range: " + jSlider1.getValue());
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14));
-        jLabel3.setText("Age Preference: " + jSlider1.getValue());
-        
+        jLabel3.setText("Age Range");
+
         jButton1.setText("Apply Filters");
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14));
-        jButton1.setBackground(new java.awt.Color(219, 112, 147));
+        jButton1.setBackground(new java.awt.Color(255, 105, 180));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setFocusPainted(false);
+        jButton1.setBorderPainted(false);
+        jButton1.setOpaque(true);
         jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setText("Gender");
-        jLabel4.setForeground(new java.awt.Color(51, 51, 51));
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel5.setText("Education Level");
-        jLabel5.setForeground(new java.awt.Color(51, 51, 51));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Long-term Relationship", "Casual Dating", "Friendship", "Not Sure Yet" }));
-        jComboBox3.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Relationship", "Casual dating", "Friendship" }));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14));
-        jLabel6.setText("Looking For");
-        jLabel6.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel6.setText("Preferences");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(141, 141, 141)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(51, 51, 51))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(36, 36, 36)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(40, 40, 40)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, 390, Short.MAX_VALUE)
-                    .addComponent(jLabel3)
-                    .addGroup(javax.swing.GroupLayout.Alignment.CENTER, jPanel1Layout.createSequentialGroup()
-                        .addGap(120, 120, 120)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(20, 20, 20))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 125, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addGap(78, 78, 78))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(194, 194, 194)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(jLabel1)
-                .addGap(30, 30, 30)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addComponent(jLabel2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel6))
-                .addGap(10, 10, 10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(35, 35, 35)
                 .addComponent(jLabel5)
-                .addGap(10, 10, 10)
-                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
-                .addComponent(jLabel3)
-                .addGap(10, 10, 10)
-                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addGap(27, 27, 27)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24))
         );
-
-        // Add slider change listener to update age label
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jLabel3.setText("Age Preference: " + jSlider1.getValue());
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -159,22 +206,61 @@ public class FilterSearch extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(17, 17, 17)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
-        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    }
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        // Create filter criteria from UI inputs
+        FilterCriteria criteria = new FilterCriteria();
+        criteria.setGender((String) jComboBox1.getSelectedItem());
+        criteria.setEducationLevel((String) jComboBox2.getSelectedItem());
+        criteria.setPreferences((String) jComboBox3.getSelectedItem());
+        criteria.setAgeRange(jSlider1.getValue());
+
+        // Validate criteria
+        FilterDao filterDao = new FilterDao();
+        if (!filterDao.validateCriteria(criteria)) {
+            JOptionPane.showMessageDialog(this,
+                "Please check your filter criteria.",
+                "Invalid Filters",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Search users based on criteria
+        List<User> matchedUsers = filterDao.searchUsers(criteria);
+        
+        if (matchedUsers.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No matches found with the current filters.",
+                "No Matches",
+                JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            // TODO: Display matched users in a new window or update current view
+            StringBuilder message = new StringBuilder();
+            message.append("Found ").append(matchedUsers.size()).append(" matches:\n\n");
+            for (User user : matchedUsers) {
+                message.append("Username: ").append(user.getUsername())
+                       .append("\nAge: ").append(user.getAge())
+                       .append("\nGender: ").append(user.getGender())
+                       .append("\nEducation: ").append(user.getEducationLevel())
+                       .append("\n\n");
+            }
+            JOptionPane.showMessageDialog(this,
+                message.toString(),
+                "Matches Found",
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 
     /**
      * @param args the command line arguments
