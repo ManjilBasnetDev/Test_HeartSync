@@ -18,8 +18,12 @@ public class ShowHideController {
     private String actualPassword = "";
     private boolean isPasswordVisible = false;
     private boolean isUpdating = false;
+    private static final String PLACEHOLDER = "Enter password";
 
     public ShowHideController(JTextArea passwordField, JButton showPasswordButton) {
+        if (passwordField == null || showPasswordButton == null) {
+            throw new IllegalArgumentException("Password field and show button cannot be null");
+        }
         this.passwordField = passwordField;
         this.showPasswordButton = showPasswordButton;
         initialize();
@@ -45,12 +49,13 @@ public class ShowHideController {
 
             @Override
             public void changedUpdate(DocumentEvent e) {
+                // Plain text components don't fire these events
             }
         });
 
         showPasswordButton.addActionListener(e -> {
             String currentText = passwordField.getText();
-            if (!currentText.equals("Enter password")) {
+            if (!currentText.equals(PLACEHOLDER)) {
                 togglePasswordVisibility();
             }
         });
@@ -60,7 +65,7 @@ public class ShowHideController {
         String currentText = passwordField.getText();
         
         // Ignore if it's the placeholder text
-        if (currentText.equals("Enter password")) {
+        if (currentText.equals(PLACEHOLDER)) {
             return;
         }
 
@@ -75,14 +80,14 @@ public class ShowHideController {
     }
 
     private void togglePasswordVisibility() {
-        // Store current caret position
-        int caretPosition = passwordField.getCaretPosition();
-        
-        isPasswordVisible = !isPasswordVisible;
-        showPasswordButton.setText(isPasswordVisible ? "Hide" : "Show");
-
-        isUpdating = true;
         try {
+            // Store current caret position
+            int caretPosition = passwordField.getCaretPosition();
+            
+            isPasswordVisible = !isPasswordVisible;
+            showPasswordButton.setText(isPasswordVisible ? "Hide" : "Show");
+
+            isUpdating = true;
             if (isPasswordVisible) {
                 // Show actual password
                 passwordField.setText(actualPassword);
@@ -127,7 +132,7 @@ public class ShowHideController {
     }
 
     public void setActualPassword(String password) {
-        if (password == null || password.equals("Enter password")) {
+        if (password == null || password.equals(PLACEHOLDER)) {
             actualPassword = "";
             return;
         }
@@ -155,5 +160,9 @@ public class ShowHideController {
         } finally {
             isUpdating = false;
         }
+    }
+    
+    public boolean isPasswordVisible() {
+        return isPasswordVisible;
     }
 }

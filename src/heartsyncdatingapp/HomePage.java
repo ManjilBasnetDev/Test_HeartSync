@@ -4,6 +4,7 @@
  */
 package heartsyncdatingapp;
 
+import heartsyncdatingapp.View.Register;
 import heartsyncdatingapp.model.LoginFinal;
 import java.awt.*;
 import java.awt.event.*;
@@ -336,10 +337,9 @@ public class HomePage extends JFrame {
         });
         
         createAccountButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Registration functionality coming soon!",
-                "Coming Soon",
-                JOptionPane.INFORMATION_MESSAGE);
+            Register registerPage = new Register();
+            registerPage.setLocationRelativeTo(null);
+            registerPage.setVisible(true);
         });
         
         // Load and add images

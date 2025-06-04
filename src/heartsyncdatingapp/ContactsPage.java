@@ -1,7 +1,7 @@
 package heartsyncdatingapp;
 
 import heartsyncdatingapp.dao.ContactDAO;
-import heartsyncdatingapp.database.MySqlConnection;
+import heartsyncdatingapp.database.DatabaseConnection;
 import heartsyncdatingapp.model.Contact;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -206,7 +206,7 @@ public class ContactsPage extends JPanel {
         contactDAO = new ContactDAO();
         
         // Test database connection
-        if (!MySqlConnection.testConnection()) {
+        if (!DatabaseConnection.testConnection()) {
             JOptionPane.showMessageDialog(this,
                 "Could not connect to database. Some features may not work.",
                 "Database Error",

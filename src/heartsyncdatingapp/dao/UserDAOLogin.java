@@ -4,7 +4,7 @@
  */
 package heartsyncdatingapp.dao;
 
-import heartsyncdatingapp.database.MySqlConnection;
+import heartsyncdatingapp.database.DatabaseConnection;
 import heartsyncdatingapp.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,138 +12,126 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAOLogin {
+    private Connection connection;
     
     public UserDAOLogin() {
-        createUsersTable();
-        createTestUserIfNotExists();
-    }
-    
-    private void createUsersTable() {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS users (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                username VARCHAR(50) NOT NULL UNIQUE,
-                password VARCHAR(100) NOT NULL,
-                email VARCHAR(100) NOT NULL,
-                security_question VARCHAR(200),
-                security_answer VARCHAR(200),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """;
-        
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.execute();
-            System.out.println("Users table created/verified successfully");
-        } catch (SQLException e) {
-            System.err.println("Error creating users table: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-    private void createTestUserIfNotExists() {
         try {
-            if (!userExists("admin")) {
-                User testUser = new User("admin", "admin123", "admin@heartsync.com", "What is your favorite color?", "blue");
-                createUser(testUser);
-                System.out.println("Test user created successfully");
+            this.connection = DatabaseConnection.getConnection();
+            if (this.connection == null) {
+                throw new SQLException("Could not establish database connection");
             }
         } catch (SQLException e) {
-            System.err.println("Error creating test user: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error initializing UserDAOLogin: " + e.getMessage());
         }
-    }
-    
-    private boolean userExists(String username) throws SQLException {
-        String query = "SELECT COUNT(*) FROM users WHERE username = ?";
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
-            stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-            }
-        }
-        return false;
     }
     
     public boolean authenticate(String username, String password) throws SQLException {
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
-            stmt.setString(1, username);
-            stmt.setString(2, password); // In production, use password hashing
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DatabaseConnection.getConnection();
             }
+            
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                stmt.setString(2, password); // In production, use password hashing
+                
+                try (ResultSet rs = stmt.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error during authentication: " + e.getMessage());
+            throw e;
         }
     }
     
     public User getUserByUsername(String username) throws SQLException {
-        String query = "SELECT * FROM users WHERE username = ?";
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DatabaseConnection.getConnection();
+            }
             
-            stmt.setString(1, username);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password"));
-                    user.setEmail(rs.getString("email"));
-                    user.setSecurityQuestion(rs.getString("security_question"));
-                    user.setSecurityAnswer(rs.getString("security_answer"));
-                    return user;
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return new User(
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("user_type"),
+                            rs.getString("email"),
+                            rs.getString("phone_number"),
+                            rs.getString("date_of_birth"),
+                            rs.getString("gender"),
+                            rs.getString("interests"),
+                            rs.getString("bio")
+                        );
+                    }
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving user: " + e.getMessage());
+            throw e;
         }
         return null;
     }
     
     public boolean updatePassword(String username, String newPassword) throws SQLException {
-        String query = "UPDATE users SET password = ? WHERE username = ?";
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
-            stmt.setString(1, newPassword);
-            stmt.setString(2, username);
-            
-            return stmt.executeUpdate() > 0;
-        }
-    }
-    
-    public boolean verifySecurityAnswer(String username, String answer) throws SQLException {
-        String query = "SELECT * FROM users WHERE username = ? AND security_answer = ?";
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
-            stmt.setString(1, username);
-            stmt.setString(2, answer);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DatabaseConnection.getConnection();
             }
+            
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, newPassword);
+                stmt.setString(2, username);
+                
+                return stmt.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error updating password: " + e.getMessage());
+            throw e;
         }
     }
     
     public boolean createUser(User user) throws SQLException {
-        String query = "INSERT INTO users (username, password, email, security_question, security_answer) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = MySqlConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        String sql = "INSERT INTO users (username, password, user_type, email) VALUES (?, ?, ?, ?)";
+        
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DatabaseConnection.getConnection();
+            }
             
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
-            stmt.setString(3, user.getEmail());
-            stmt.setString(4, user.getSecurityQuestion());
-            stmt.setString(5, user.getSecurityAnswer());
-            
-            return stmt.executeUpdate() > 0;
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, user.getUsername());
+                stmt.setString(2, user.getPassword());
+                stmt.setString(3, user.getUserType());
+                stmt.setString(4, user.getEmail());
+                
+                return stmt.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error creating user: " + e.getMessage());
+            throw e;
+        }
+    }
+    
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+                connection = null;
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
         }
     }
 } 
