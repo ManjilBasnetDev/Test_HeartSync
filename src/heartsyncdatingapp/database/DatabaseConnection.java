@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.swing.JOptionPane;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -16,36 +15,39 @@ import java.time.format.DateTimeParseException;
  */
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/";
-    private static final String DB_NAME = "heart_sync_db";
+    private static final String DB_NAME = "heartsync_db";
     private static final String USERNAME = "manjil";
     private static final String PASSWORD = "3023";
+    private static boolean driverLoaded = false;
     private static Connection connection = null;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int MINIMUM_AGE = 18;
-    private static boolean driverLoaded = false;
     
     static {
-        loadDriver();
-        initializeDatabase();
-    }
-    
-    private static void loadDriver() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             driverLoaded = true;
-            System.out.println("MySQL JDBC Driver loaded successfully");
+            initializeDatabase();
         } catch (ClassNotFoundException e) {
-            String error = "MySQL JDBC Driver not found.\nPlease ensure mysql-connector-j-8.0.33.jar is in the lib directory.";
-            System.err.println(error);
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
-                error,
-                "Database Error",
-                JOptionPane.ERROR_MESSAGE);
+            System.err.println("MySQL JDBC Driver not found: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error initializing database: " + e.getMessage());
         }
     }
     
-    private static void initializeDatabase() {
+    public static Connection getConnection() throws SQLException {
+        if (!driverLoaded) {
+            throw new SQLException("MySQL JDBC Driver not loaded");
+        }
+        
+        if (connection == null || connection.isClosed()) {
+            connection = DriverManager.getConnection(URL + DB_NAME, USERNAME, PASSWORD);
+        }
+        
+        return connection;
+    }
+    
+    private static void initializeDatabase() throws SQLException {
         if (!driverLoaded) {
             return;
         }
@@ -60,105 +62,135 @@ public class DatabaseConnection {
                     // Use the database
                     stmt.executeUpdate("USE " + DB_NAME);
                     
-                    // Create users table with proper date_of_birth format
+                    // Create users table with all necessary fields
                     String createUsersTableSQL = """
                         CREATE TABLE IF NOT EXISTS users (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             username VARCHAR(50) NOT NULL UNIQUE,
-                            password VARCHAR(100) NOT NULL,
-                            user_type VARCHAR(10) NOT NULL DEFAULT 'USER',
-                            email VARCHAR(100),
+                            password VARCHAR(255) NOT NULL,
+                            user_type ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+                            email VARCHAR(100) UNIQUE,
                             phone_number VARCHAR(20),
-                            date_of_birth DATE NOT NULL,
+                            date_of_birth DATE,
                             gender VARCHAR(10),
                             interests TEXT,
                             bio TEXT,
+                            account_status ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED') DEFAULT 'ACTIVE',
+                            last_login TIMESTAMP NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                         )
                     """;
                     stmt.executeUpdate(createUsersTableSQL);
                     
-                    // Create contacts table
+                    // Create user_profiles table for detailed information
+                    String createUserProfilesTableSQL = """
+                        CREATE TABLE IF NOT EXISTS user_profiles (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL UNIQUE,
+                            full_name VARCHAR(100),
+                            height INT,
+                            weight INT,
+                            country VARCHAR(100),
+                            address TEXT,
+                            qualification VARCHAR(255),
+                            occupation VARCHAR(255),
+                            religion VARCHAR(100),
+                            ethnicity VARCHAR(100),
+                            relationship_goal VARCHAR(100),
+                            interests TEXT,
+                            languages TEXT,
+                            about_me TEXT,
+                            profile_pic_path VARCHAR(255),
+                            preferences TEXT,
+                            profile_status ENUM('INCOMPLETE', 'COMPLETE') DEFAULT 'INCOMPLETE',
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                        )
+                    """;
+                    stmt.executeUpdate(createUserProfilesTableSQL);
+                    
+                    // Create user_hobbies table
+                    String createHobbiesTableSQL = """
+                        CREATE TABLE IF NOT EXISTS user_hobbies (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            user_id INT NOT NULL,
+                            hobby VARCHAR(100) NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                        )
+                    """;
+                    stmt.executeUpdate(createHobbiesTableSQL);
+                    
+                    // Create contacts table with enhanced fields
                     String createContactsTableSQL = """
                         CREATE TABLE IF NOT EXISTS contacts (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             full_name VARCHAR(100) NOT NULL,
                             email VARCHAR(100) NOT NULL,
+                            phone_number VARCHAR(20),
+                            subject VARCHAR(200),
                             message TEXT NOT NULL,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            status ENUM('NEW', 'READ', 'REPLIED') DEFAULT 'NEW',
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                         )
                     """;
                     stmt.executeUpdate(createContactsTableSQL);
                     
-                    // Create matches table for future use
+                    // Create matches table with enhanced fields
                     String createMatchesTableSQL = """
                         CREATE TABLE IF NOT EXISTS matches (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             user1_id INT NOT NULL,
                             user2_id INT NOT NULL,
                             match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            status ENUM('PENDING', 'ACCEPTED', 'REJECTED') DEFAULT 'PENDING',
-                            FOREIGN KEY (user1_id) REFERENCES users(id),
-                            FOREIGN KEY (user2_id) REFERENCES users(id)
+                            status ENUM('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED') DEFAULT 'PENDING',
+                            compatibility_score DECIMAL(5,2),
+                            notes TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+                            FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE
                         )
                     """;
                     stmt.executeUpdate(createMatchesTableSQL);
                     
-                    // Create messages table for future use
+                    // Create messages table with enhanced fields
                     String createMessagesTableSQL = """
                         CREATE TABLE IF NOT EXISTS messages (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             sender_id INT NOT NULL,
                             receiver_id INT NOT NULL,
                             message_text TEXT NOT NULL,
+                            message_type ENUM('TEXT', 'IMAGE', 'FILE') DEFAULT 'TEXT',
+                            attachment_path VARCHAR(255),
+                            is_read BOOLEAN DEFAULT FALSE,
                             sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             read_at TIMESTAMP NULL,
-                            FOREIGN KEY (sender_id) REFERENCES users(id),
-                            FOREIGN KEY (receiver_id) REFERENCES users(id)
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+                            FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
                         )
                     """;
                     stmt.executeUpdate(createMessagesTableSQL);
+
+                    // Insert default admin user if not exists
+                    String insertAdminSQL = """
+                        INSERT IGNORE INTO users (username, password, user_type, email)
+                        VALUES ('admin', 'admin123', 'ADMIN', 'admin@heartsync.com')
+                    """;
+                    stmt.executeUpdate(insertAdminSQL);
                     
                     System.out.println("Database and tables initialized successfully");
                 }
             }
         } catch (SQLException e) {
-            String error = "Database initialization error: " + e.getMessage();
-            System.err.println(error);
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
-                error,
-                "Database Error",
-                JOptionPane.ERROR_MESSAGE);
+            System.err.println("Error initializing database: " + e.getMessage());
+            throw e;
         }
-    }
-    
-    public static Connection getConnection() throws SQLException {
-        if (!driverLoaded) {
-            throw new SQLException("MySQL JDBC Driver not loaded");
-        }
-        
-        if (connection == null || connection.isClosed()) {
-            try {
-                String fullUrl = URL + DB_NAME;
-                connection = DriverManager.getConnection(fullUrl, USERNAME, PASSWORD);
-                if (connection == null) {
-                    throw new SQLException("Failed to establish database connection.");
-                }
-                System.out.println("Database connected successfully");
-            } catch (SQLException e) {
-                String error = "Database connection error: " + e.getMessage();
-                System.err.println(error);
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null,
-                    error,
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE);
-                throw e;
-            }
-        }
-        return connection;
     }
     
     public static void closeConnection() {
@@ -166,7 +198,6 @@ public class DatabaseConnection {
             try {
                 connection.close();
                 connection = null;
-                System.out.println("Database connection closed");
             } catch (SQLException e) {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
@@ -209,4 +240,4 @@ public class DatabaseConnection {
     public static int calculateAge(LocalDate dateOfBirth) {
         return Period.between(dateOfBirth, LocalDate.now()).getYears();
     }
-} 
+}

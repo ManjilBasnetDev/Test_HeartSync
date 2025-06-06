@@ -1,13 +1,34 @@
 package heartsyncdatingapp;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
+import java.sql.SQLException;
+import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+
 import heartsyncdatingapp.dao.ContactDAO;
 import heartsyncdatingapp.database.DatabaseConnection;
 import heartsyncdatingapp.model.Contact;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.sql.SQLException;
-import javax.swing.*;
-import javax.swing.border.Border;
 
 public class ContactsPage extends JPanel {
     private final JTextArea fullNameField;
@@ -17,8 +38,14 @@ public class ContactsPage extends JPanel {
     private final Border defaultBorder;
     private final Border errorBorder;
     private final ContactDAO contactDAO;
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+        "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
+    );
 
     public ContactsPage() {
+        // Initialize contactDAO
+        contactDAO = new ContactDAO();
+
         setLayout(new BorderLayout());
         setBackground(new Color(255, 240, 245));
 
@@ -202,9 +229,6 @@ public class ContactsPage extends JPanel {
         // Add the main panel to the center of the ContactsPage
         add(mainPanel, BorderLayout.CENTER);
         
-        // Initialize DAO
-        contactDAO = new ContactDAO();
-        
         // Test database connection
         if (!DatabaseConnection.testConnection()) {
             JOptionPane.showMessageDialog(this,
@@ -215,97 +239,71 @@ public class ContactsPage extends JPanel {
     }
 
     private void validateAndSubmit() {
+        boolean isValid = true;
+        String name = fullNameField.getText().trim();
+        String email = emailField.getText().trim();
+        String message = messageArea.getText().trim();
+
         // Reset borders
         fullNameField.setBorder(defaultBorder);
         emailField.setBorder(defaultBorder);
         messageArea.setBorder(defaultBorder);
 
-        // Get values
-        String fullName = fullNameField.getText().trim();
-        String email = emailField.getText().trim();
-        String message = messageArea.getText().trim();
-
-        // Validate
-        boolean hasErrors = false;
-        StringBuilder errors = new StringBuilder("Please fix the following errors:\n\n");
-
-        // Validate Full Name
-        if (fullName.isEmpty()) {
-            errors.append("• Full Name is required\n");
+        // Validate name
+        if (name.isEmpty()) {
             fullNameField.setBorder(errorBorder);
-            hasErrors = true;
-        } else if (!fullName.contains(" ")) {
-            errors.append("• Please enter both first and last name\n");
-            fullNameField.setBorder(errorBorder);
-            hasErrors = true;
+            isValid = false;
         }
 
-        // Validate Email
-        if (email.isEmpty()) {
-            errors.append("• Email Address is required\n");
+        // Validate email
+        if (email.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
             emailField.setBorder(errorBorder);
-            hasErrors = true;
-        } else if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            errors.append("• Please enter a valid email address\n");
-            emailField.setBorder(errorBorder);
-            hasErrors = true;
+            isValid = false;
         }
 
-        // Validate Message
+        // Validate message
         if (message.isEmpty()) {
-            errors.append("• Message is required\n");
             messageArea.setBorder(errorBorder);
-            hasErrors = true;
-        } else if (message.length() < 10) {
-            errors.append("• Message must be at least 10 characters\n");
-            messageArea.setBorder(errorBorder);
-            hasErrors = true;
+            isValid = false;
         }
 
-        if (hasErrors) {
-            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
-                errors.toString(),
+        if (!isValid) {
+            JOptionPane.showMessageDialog(this,
+                "Please fill in all required fields correctly.\nEmail must be in a valid format.",
                 "Validation Error",
                 JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // All validation passed, try to save
-        sendButton.setEnabled(false);
-        sendButton.setText("Sending...");
-
         try {
-            Contact contact = new Contact(fullName, email, message);
+            Contact contact = new Contact(name, email, message);
+            
             if (contactDAO.saveContact(contact)) {
-                // Clear form
+                JOptionPane.showMessageDialog(this,
+                    "Thank you for your message!\nWe'll get back to you soon.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+                
+                // Clear fields after successful submission
                 fullNameField.setText("");
                 emailField.setText("");
                 messageArea.setText("");
-                
-                JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
-                    "Thank you! Your message has been sent successfully.",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                JOptionPane.showMessageDialog(this,
                     "Failed to send message. Please try again.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+            JOptionPane.showMessageDialog(this,
                 "Database error: " + e.getMessage(),
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
-                "Invalid input: " + e.getMessage(),
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "An unexpected error occurred: " + e.getMessage(),
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
-        } finally {
-            sendButton.setEnabled(true);
-            sendButton.setText("Send Message");
         }
     }
 }

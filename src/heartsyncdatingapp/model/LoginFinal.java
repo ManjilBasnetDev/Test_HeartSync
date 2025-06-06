@@ -4,15 +4,24 @@
  */
 package heartsyncdatingapp.model;
 
-import heartsyncdatingapp.controller.ShowHideController;
-import heartsyncdatingapp.dao.UserDAOLogin;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.sql.SQLException;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+
+import heartsyncdatingapp.HomePage;
+import heartsyncdatingapp.controller.ShowHideController;
+import heartsyncdatingapp.dao.UserDAOLogin;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -36,6 +45,7 @@ public class LoginFinal extends javax.swing.JFrame {
     private javax.swing.JTextArea txtUsername;
     private javax.swing.JTextArea txtPassword;
     private ShowHideController showHideController;
+    private HomePage homePage;
 
     /**
      * Creates new form Login
@@ -47,6 +57,14 @@ public class LoginFinal extends javax.swing.JFrame {
         showHideController = new ShowHideController(txtPassword, btnTogglePassword);
         setSize(700, 500);
         setResizable(false);
+        
+        // Store reference to HomePage
+        for (Window window : Window.getWindows()) {
+            if (window instanceof HomePage) {
+                homePage = (HomePage) window;
+                break;
+            }
+        }
     }
 
     private String actualPassword = "";
@@ -56,11 +74,15 @@ public class LoginFinal extends javax.swing.JFrame {
     private void setupTextFields() {
         // Username setup
         txtUsername.setText("USERNAME");
-txtUsername.setForeground(Color.GRAY);
+        txtUsername.setForeground(Color.GRAY);
+        txtUsername.setBackground(Color.WHITE);
+        txtUsername.setOpaque(true);
 
         // Password setup
         txtPassword.setText("Enter password");
         txtPassword.setForeground(Color.GRAY);
+        txtPassword.setBackground(Color.WHITE);
+        txtPassword.setOpaque(true);
         txtPassword.setWrapStyleWord(true);
         txtPassword.setLineWrap(true);
     }
@@ -135,7 +157,12 @@ txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
 });
 
         // Back button action
-        btnBack.addActionListener(e -> dispose());
+        btnBack.addActionListener(e -> {
+            if (homePage != null) {
+                homePage.setVisible(true);
+            }
+            dispose();
+        });
 
         // Login button action
         btnLogin.addActionListener(e -> performLogin());
@@ -281,6 +308,7 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
         // Username field
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14));
         txtUsername.setBackground(Color.WHITE);
+        txtUsername.setOpaque(true);
         txtUsername.setForeground(Color.GRAY);
         txtUsername.setLineWrap(true);
         txtUsername.setWrapStyleWord(true);
@@ -306,6 +334,7 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
         // Password field
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14));
         txtPassword.setBackground(Color.WHITE);
+        txtPassword.setOpaque(true);
         txtPassword.setForeground(Color.GRAY);
         txtPassword.setLineWrap(true);
         txtPassword.setWrapStyleWord(true);

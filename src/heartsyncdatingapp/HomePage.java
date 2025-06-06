@@ -4,13 +4,49 @@
  */
 package heartsyncdatingapp;
 
-import heartsyncdatingapp.View.Register;
-import heartsyncdatingapp.model.LoginFinal;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import heartsyncdatingapp.model.LoginFinal;
+import heartsyncdatingapp.view.Register;
 
 /**
  *
@@ -41,11 +77,22 @@ public class HomePage extends JFrame {
      * Creates new form ProfileSetup
      */
     public HomePage() {
+        initializeComponents();
+    }
+
+    private void initializeComponents() {
         setTitle("HeartSync - Find Love");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1200, 900);
         setResizable(false);
-        setLocationRelativeTo(null);
+        
+        // Initialize all components first
+        homeLabel = new JLabel("Home");
+        aboutLabel = new JLabel("About Us");
+        featuresLabel = new JLabel("Features");
+        contactLabel = new JLabel("Contact Us");
+        loginButton = new JButton("Login");
+        createAccountButton = new JButton("Create Account");
         
         // Create main panel
         mainPanel = new JPanel();
@@ -75,6 +122,8 @@ public class HomePage extends JFrame {
         // Set home as current by default
         setCurrentNavItem(homeLabel);
         cardLayout.show(contentCards, "home");
+        
+        setLocationRelativeTo(null);
         
         // Make sure everything is properly laid out
         revalidate();
@@ -199,6 +248,13 @@ public class HomePage extends JFrame {
             LoginFinal loginPage = new LoginFinal();
             loginPage.setLocationRelativeTo(null);
             loginPage.setVisible(true);
+            setVisible(false);
+        });
+        
+        createAccountButton.addActionListener(e -> {
+            Register registerPage = new Register();
+            registerPage.setVisible(true);
+            setVisible(false);
         });
         
         return navPanel;
@@ -335,12 +391,13 @@ public class HomePage extends JFrame {
             LoginFinal loginPage = new LoginFinal();
             loginPage.setLocationRelativeTo(null);
             loginPage.setVisible(true);
+            setVisible(false);
         });
         
         createAccountButton.addActionListener(e -> {
             Register registerPage = new Register();
-            registerPage.setLocationRelativeTo(null);
             registerPage.setVisible(true);
+            setVisible(false);
         });
         
         // Load and add images
