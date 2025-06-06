@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConfig {
     private static final String URL = "jdbc:mysql://localhost:3306/heartsync";
     private static final String USER = "root";
-    private static final String PASSWORD = "";  // Set your MySQL password here
+    private static final String PASSWORD = "Yuva@123";  // Set your MySQL password here
     
     public static Connection getConnection() throws SQLException {
         try {

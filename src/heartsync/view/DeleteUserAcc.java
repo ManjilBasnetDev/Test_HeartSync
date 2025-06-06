@@ -4,17 +4,33 @@
  */
 package heartsync.view;
 
+import heartsync.dao.UserDAO;
+import heartsync.dao.UserProfileDAO;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author HP
  */
 public class DeleteUserAcc extends javax.swing.JFrame {
 
+    private int userId;
+    private String currentUsername;
+    private final UserDAO userDAO;
+    private final UserProfileDAO userProfileDAO;
+
     /**
      * Creates new form DeleteUserAcc
+     * @param userId The ID of the user to delete
+     * @param username The username of the user to delete
      */
-    public DeleteUserAcc() {
+    public DeleteUserAcc(int userId, String username) {
         initComponents();
+        this.userId = userId;
+        this.currentUsername = username;
+        this.userDAO = new UserDAO();
+        this.userProfileDAO = new UserProfileDAO();
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -58,8 +74,18 @@ public class DeleteUserAcc extends javax.swing.JFrame {
         jLabel5.setText("jLabel5");
 
         jButton1.setText("<Back");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Done");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -137,39 +163,65 @@ public class DeleteUserAcc extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DeleteUserAcc.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DeleteUserAcc.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DeleteUserAcc.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DeleteUserAcc.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        // Handle back button - just dispose this window
+        this.dispose();
+    }
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new DeleteUserAcc().setVisible(true);
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+        // Get the entered username
+        String confirmedUsername = new String(jPasswordField1.getPassword());
+        
+        // Validate username
+        if (confirmedUsername.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter your username to confirm deletion",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Check if username matches
+        if (!confirmedUsername.equals(currentUsername)) {
+            JOptionPane.showMessageDialog(this,
+                "Username does not match. Please try again.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Ask for final confirmation
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Are you absolutely sure you want to delete your account?\nThis action cannot be undone!",
+            "Confirm Deletion",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                // Delete the user account
+                if (userDAO.deleteUser(userId)) {
+                    JOptionPane.showMessageDialog(this,
+                        "Your account has been successfully deleted.",
+                        "Account Deleted",
+                        JOptionPane.INFORMATION_MESSAGE);
+                        
+                    // Close this window and show login screen
+                    this.dispose();
+                    new LoginView().setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                        "Failed to delete account. Please try again later.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                    "An error occurred while deleting your account: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
-        });
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -183,4 +235,49 @@ public class DeleteUserAcc extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField jPasswordField1;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        try {
+            // Set Nimbus look and feel for better UI
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(DeleteUserAcc.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                // Initialize database
+                heartsync.database.DatabaseConfig.initializeDatabase();
+                
+                // Create a test user if it doesn't exist
+                UserDAO userDAO = new UserDAO();
+                heartsync.model.User testUser = userDAO.getUserByUsername("testuser");
+                
+                if (testUser == null) {
+                    testUser = new heartsync.model.User("testuser", "oldpassword", "test@example.com");
+                    userDAO.createUser(testUser);
+                    testUser = userDAO.getUserByUsername("testuser"); // Get the user with ID
+                }
+                
+                // Show the delete account form with the test user
+                DeleteUserAcc deleteForm = new DeleteUserAcc(testUser.getId(), testUser.getUsername());
+                deleteForm.setVisible(true);
+                
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null,
+                    "Failed to initialize: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        });
+    }
 }
