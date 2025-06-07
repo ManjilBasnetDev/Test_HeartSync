@@ -33,7 +33,9 @@ public class UserSetup {
 
         // Create MVC components
         UserProfile model = new UserProfile();
-        UserProfileController controller = new UserProfileController(model);
+        // Use a default username for direct profile setup
+        String defaultUsername = "guest_" + System.currentTimeMillis();
+        UserProfileController controller = new UserProfileController(model, defaultUsername);
         
         // Create and show the main view
         SwingUtilities.invokeLater(() -> {

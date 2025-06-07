@@ -7,26 +7,33 @@ import heartsyncdatingapp.view.MoreInfoView;
 
 public class UserProfileController {
     private UserProfile model;
+    private String currentUsername;
     private MoreInfoView moreInfoView;
 
-    public UserProfileController(UserProfile model) {
+    public UserProfileController(UserProfile model, String username) {
         this.model = model;
+        this.currentUsername = username;
     }
 
     public UserProfile getModel() {
         return model;
     }
 
+    public String getCurrentUsername() {
+        return currentUsername;
+    }
+
     // Basic info methods
-    public void updateBasicInfo(String fullName, int height, int weight, String country,
-                              String address, String phoneNumber, String qualification,
-                              String gender, String preferences, String aboutMe) {
+    public void updateBasicInfo(String username, String fullName, int height, int weight, 
+                              String country, String address, String phone, 
+                              String qualification, String gender, String preferences, 
+                              String aboutMe) {
         model.setFullName(fullName);
         model.setHeight(height);
         model.setWeight(weight);
         model.setCountry(country);
         model.setAddress(address);
-        model.setPhoneNumber(phoneNumber);
+        model.setPhoneNumber(phone);
         model.setQualification(qualification);
         model.setGender(gender);
         model.setPreferences(preferences);

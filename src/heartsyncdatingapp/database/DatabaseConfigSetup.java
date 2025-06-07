@@ -2,7 +2,7 @@ package heartsyncdatingapp.database;
 
 public class DatabaseConfigSetup {
     // Database connection constants
-    public static final String DB_URL = "jdbc:mysql://localhost:3306/heartsync";
+    public static final String DB_URL = "jdbc:mysql://localhost:3306/TestHeartSync";
     public static final String USER = "manjil";
     public static final String PASS = "3023";
     public static final String DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";

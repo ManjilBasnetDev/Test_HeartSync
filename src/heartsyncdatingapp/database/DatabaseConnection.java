@@ -15,7 +15,7 @@ import java.time.format.DateTimeParseException;
  */
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/";
-    private static final String DB_NAME = "heartsync_db";
+    private static final String DB_NAME = "TestHeartSync";
     private static final String USERNAME = "manjil";
     private static final String PASSWORD = "3023";
     private static boolean driverLoaded = false;
@@ -57,53 +57,46 @@ public class DatabaseConnection {
             try (Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
                 try (Statement stmt = conn.createStatement()) {
                     // Create database if it doesn't exist
-                    stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
+                    stmt.executeUpdate("DROP DATABASE IF EXISTS " + DB_NAME);
+                    stmt.executeUpdate("CREATE DATABASE " + DB_NAME);
                     
                     // Use the database
                     stmt.executeUpdate("USE " + DB_NAME);
                     
-                    // Create users table with all necessary fields
+                    // Create users table - main user authentication and basic info
                     String createUsersTableSQL = """
-                        CREATE TABLE IF NOT EXISTS users (
+                        CREATE TABLE users (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             username VARCHAR(50) NOT NULL UNIQUE,
                             password VARCHAR(255) NOT NULL,
                             user_type ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
                             email VARCHAR(100) UNIQUE,
-                            phone_number VARCHAR(20),
-                            date_of_birth DATE,
-                            gender VARCHAR(10),
-                            interests TEXT,
-                            bio TEXT,
-                            account_status ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED') DEFAULT 'ACTIVE',
-                            last_login TIMESTAMP NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                         )
                     """;
                     stmt.executeUpdate(createUsersTableSQL);
                     
-                    // Create user_profiles table for detailed information
+                    // Create user_profiles table - detailed user information
                     String createUserProfilesTableSQL = """
-                        CREATE TABLE IF NOT EXISTS user_profiles (
+                        CREATE TABLE user_profiles (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             user_id INT NOT NULL UNIQUE,
-                            full_name VARCHAR(100),
-                            height INT,
-                            weight INT,
-                            country VARCHAR(100),
-                            address TEXT,
-                            qualification VARCHAR(255),
-                            occupation VARCHAR(255),
-                            religion VARCHAR(100),
-                            ethnicity VARCHAR(100),
-                            relationship_goal VARCHAR(100),
+                            full_name VARCHAR(100) NOT NULL,
+                            height INT NOT NULL,
+                            weight INT NOT NULL,
+                            country VARCHAR(50) NOT NULL,
+                            address VARCHAR(200) NOT NULL,
+                            phone VARCHAR(20) NOT NULL,
+                            qualification VARCHAR(100) NOT NULL,
+                            gender VARCHAR(20) NOT NULL,
+                            preferences VARCHAR(20) NOT NULL,
+                            about_me TEXT NOT NULL,
+                            profile_pic_path VARCHAR(500),
+                            relation_choice VARCHAR(50) NOT NULL,
+                            date_of_birth DATE,
                             interests TEXT,
-                            languages TEXT,
-                            about_me TEXT,
-                            profile_pic_path VARCHAR(255),
-                            preferences TEXT,
-                            profile_status ENUM('INCOMPLETE', 'COMPLETE') DEFAULT 'INCOMPLETE',
+                            bio TEXT,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -113,7 +106,7 @@ public class DatabaseConnection {
                     
                     // Create user_hobbies table
                     String createHobbiesTableSQL = """
-                        CREATE TABLE IF NOT EXISTS user_hobbies (
+                        CREATE TABLE user_hobbies (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             user_id INT NOT NULL,
                             hobby VARCHAR(100) NOT NULL,
@@ -123,9 +116,9 @@ public class DatabaseConnection {
                     """;
                     stmt.executeUpdate(createHobbiesTableSQL);
                     
-                    // Create contacts table with enhanced fields
+                    // Create contacts table for contact form submissions
                     String createContactsTableSQL = """
-                        CREATE TABLE IF NOT EXISTS contacts (
+                        CREATE TABLE contacts (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             full_name VARCHAR(100) NOT NULL,
                             email VARCHAR(100) NOT NULL,
@@ -139,16 +132,13 @@ public class DatabaseConnection {
                     """;
                     stmt.executeUpdate(createContactsTableSQL);
                     
-                    // Create matches table with enhanced fields
+                    // Create matches table for user matches
                     String createMatchesTableSQL = """
-                        CREATE TABLE IF NOT EXISTS matches (
+                        CREATE TABLE matches (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             user1_id INT NOT NULL,
                             user2_id INT NOT NULL,
-                            match_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            status ENUM('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED') DEFAULT 'PENDING',
-                            compatibility_score DECIMAL(5,2),
-                            notes TEXT,
+                            match_status ENUM('PENDING', 'ACCEPTED', 'REJECTED') DEFAULT 'PENDING',
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                             FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -157,9 +147,9 @@ public class DatabaseConnection {
                     """;
                     stmt.executeUpdate(createMatchesTableSQL);
                     
-                    // Create messages table with enhanced fields
+                    // Create messages table for user communication
                     String createMessagesTableSQL = """
-                        CREATE TABLE IF NOT EXISTS messages (
+                        CREATE TABLE messages (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             sender_id INT NOT NULL,
                             receiver_id INT NOT NULL,
@@ -177,9 +167,9 @@ public class DatabaseConnection {
                     """;
                     stmt.executeUpdate(createMessagesTableSQL);
 
-                    // Insert default admin user if not exists
+                    // Insert default admin user
                     String insertAdminSQL = """
-                        INSERT IGNORE INTO users (username, password, user_type, email)
+                        INSERT INTO users (username, password, user_type, email)
                         VALUES ('admin', 'admin123', 'ADMIN', 'admin@heartsync.com')
                     """;
                     stmt.executeUpdate(insertAdminSQL);

@@ -43,6 +43,7 @@ public class DatabaseManagerProfile {
             try (PreparedStatement stmt = conn.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS user_profiles (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "user_id INT NOT NULL UNIQUE, " +
                 "full_name VARCHAR(100) NOT NULL, " +
                 "height INT NOT NULL, " +
                 "weight INT NOT NULL, " +
@@ -54,7 +55,8 @@ public class DatabaseManagerProfile {
                 "preferences VARCHAR(20) NOT NULL, " +
                 "about_me TEXT NOT NULL, " +
                 "profile_pic_path VARCHAR(500), " +
-                "relation_choice VARCHAR(50) NOT NULL" +
+                "relation_choice VARCHAR(50) NOT NULL, " +
+                "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE" +
                 ")"
             )) {
                 stmt.execute();
@@ -66,7 +68,7 @@ public class DatabaseManagerProfile {
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "user_id INT NOT NULL, " +
                 "hobby VARCHAR(100) NOT NULL, " +
-                "FOREIGN KEY (user_id) REFERENCES user_profiles(id)" +
+                "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE" +
                 ")"
             )) {
                 stmt.execute();
@@ -77,7 +79,7 @@ public class DatabaseManagerProfile {
         }
     }
 
-    public int saveUserProfile(String fullName, int height, int weight, String country, 
+    public int saveUserProfile(String username, String fullName, int height, int weight, String country, 
                              String address, String phone, String qualification, 
                              String gender, String preferences, String aboutMe, 
                              String profilePicPath, String relationChoice, 
@@ -87,39 +89,43 @@ public class DatabaseManagerProfile {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // Insert user profile
-            String insertUserSQL = """
-                INSERT INTO user_profiles (full_name, height, weight, country, address, 
-                                      phone, qualification, gender, preferences, 
-                                      about_me, profile_pic_path, relation_choice)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
-
+            // First, get the user_id from the users table
             int userId;
-            try (PreparedStatement pstmt = conn.prepareStatement(insertUserSQL, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, fullName);
-                pstmt.setInt(2, height);
-                pstmt.setInt(3, weight);
-                pstmt.setString(4, country);
-                pstmt.setString(5, address);
-                pstmt.setString(6, phone);
-                pstmt.setString(7, qualification);
-                pstmt.setString(8, gender);
-                pstmt.setString(9, preferences);
-                pstmt.setString(10, aboutMe);
-                pstmt.setString(11, profilePicPath);
-                pstmt.setString(12, relationChoice);
-
-                pstmt.executeUpdate();
-
-                // Get the generated user ID
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+            try (PreparedStatement pstmt = conn.prepareStatement("SELECT id FROM users WHERE username = ?")) {
+                pstmt.setString(1, username);
+                try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
-                        userId = rs.getInt(1);
+                        userId = rs.getInt("id");
                     } else {
-                        throw new SQLException("Failed to get user ID");
+                        throw new SQLException("User not found: " + username);
                     }
                 }
+            }
+
+            // Insert user profile with the correct user_id
+            String insertUserSQL = """
+                INSERT INTO user_profiles (user_id, full_name, height, weight, country, address, 
+                                      phone, qualification, gender, preferences, 
+                                      about_me, profile_pic_path, relation_choice)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+
+            try (PreparedStatement pstmt = conn.prepareStatement(insertUserSQL, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setInt(1, userId);
+                pstmt.setString(2, fullName);
+                pstmt.setInt(3, height);
+                pstmt.setInt(4, weight);
+                pstmt.setString(5, country);
+                pstmt.setString(6, address);
+                pstmt.setString(7, phone);
+                pstmt.setString(8, qualification);
+                pstmt.setString(9, gender);
+                pstmt.setString(10, preferences);
+                pstmt.setString(11, aboutMe);
+                pstmt.setString(12, profilePicPath);
+                pstmt.setString(13, relationChoice);
+
+                pstmt.executeUpdate();
             }
 
             // Insert hobbies

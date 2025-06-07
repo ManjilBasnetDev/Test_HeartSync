@@ -407,15 +407,22 @@ public class Register extends JFrame {
                 if (!isUpdatingPassword && !passwordField.getText().equals("PASSWORD")) {
                     SwingUtilities.invokeLater(() -> {
                         String text = passwordField.getText();
-                        actualPassword = isPasswordVisible ? text : 
-                            (text.length() > actualPassword.length() ? 
-                                actualPassword + text.substring(actualPassword.length()) : 
-                                actualPassword.substring(0, text.length()));
-                        
-                        if (!isPasswordVisible) {
-                            isUpdatingPassword = true;
-                            passwordField.setText("•".repeat(actualPassword.length()));
-                            isUpdatingPassword = false;
+                        if (text != null && !text.isEmpty()) {
+                            if (isPasswordVisible) {
+                                actualPassword = text;
+                            } else {
+                                if (text.length() > actualPassword.length()) {
+                                    actualPassword += text.substring(actualPassword.length());
+                                } else {
+                                    actualPassword = actualPassword.substring(0, text.length());
+                                }
+                            }
+                            
+                            if (!isPasswordVisible) {
+                                isUpdatingPassword = true;
+                                passwordField.setText("•".repeat(actualPassword.length()));
+                                isUpdatingPassword = false;
+                            }
                         }
                         validatePassword();
                     });
@@ -426,7 +433,10 @@ public class Register extends JFrame {
             public void removeUpdate(DocumentEvent e) {
                 if (!isUpdatingPassword && !passwordField.getText().equals("PASSWORD")) {
                     SwingUtilities.invokeLater(() -> {
-                        actualPassword = actualPassword.substring(0, passwordField.getText().length());
+                        String text = passwordField.getText();
+                        if (text != null && actualPassword.length() > text.length()) {
+                            actualPassword = actualPassword.substring(0, text.length());
+                        }
                         validatePassword();
                     });
                 }
@@ -443,15 +453,22 @@ public class Register extends JFrame {
                 if (!isUpdatingConfirm && !confirmField.getText().equals("CONFIRM")) {
                     SwingUtilities.invokeLater(() -> {
                         String text = confirmField.getText();
-                        actualConfirmPassword = isConfirmPasswordVisible ? text :
-                            (text.length() > actualConfirmPassword.length() ? 
-                                actualConfirmPassword + text.substring(actualConfirmPassword.length()) : 
-                                actualConfirmPassword.substring(0, text.length()));
-                        
-                        if (!isConfirmPasswordVisible) {
-                            isUpdatingConfirm = true;
-                            confirmField.setText("•".repeat(actualConfirmPassword.length()));
-                            isUpdatingConfirm = false;
+                        if (text != null && !text.isEmpty()) {
+                            if (isConfirmPasswordVisible) {
+                                actualConfirmPassword = text;
+                            } else {
+                                if (text.length() > actualConfirmPassword.length()) {
+                                    actualConfirmPassword += text.substring(actualConfirmPassword.length());
+                                } else {
+                                    actualConfirmPassword = actualConfirmPassword.substring(0, text.length());
+                                }
+                            }
+                            
+                            if (!isConfirmPasswordVisible) {
+                                isUpdatingConfirm = true;
+                                confirmField.setText("•".repeat(actualConfirmPassword.length()));
+                                isUpdatingConfirm = false;
+                            }
                         }
                         validatePassword();
                     });
@@ -462,7 +479,10 @@ public class Register extends JFrame {
             public void removeUpdate(DocumentEvent e) {
                 if (!isUpdatingConfirm && !confirmField.getText().equals("CONFIRM")) {
                     SwingUtilities.invokeLater(() -> {
-                        actualConfirmPassword = actualConfirmPassword.substring(0, confirmField.getText().length());
+                        String text = confirmField.getText();
+                        if (text != null && actualConfirmPassword.length() > text.length()) {
+                            actualConfirmPassword = actualConfirmPassword.substring(0, text.length());
+                        }
                         validatePassword();
                     });
                 }
@@ -563,14 +583,20 @@ public class Register extends JFrame {
                         "Success",
                         JOptionPane.INFORMATION_MESSAGE);
                     
-                    // Create MVC components for profile setup
-                    UserProfile model = new UserProfile();
-                    UserProfileController controller = new UserProfileController(model);
-                    ProfileSetupView view = new ProfileSetupView(controller);
-                    
-                    // Close registration window and show profile setup
-                    dispose();
-                    view.setVisible(true);
+                    if (role.equals("USER")) {
+                        // Create MVC components for profile setup only for regular users
+                        UserProfile model = new UserProfile();
+                        UserProfileController controller = new UserProfileController(model, username);
+                        ProfileSetupView view = new ProfileSetupView(controller);
+                        
+                        // Close registration window and show profile setup
+                        dispose();
+                        view.setVisible(true);
+                    } else {
+                        // For admin users, just close the registration window
+                        dispose();
+                        // You might want to show admin dashboard here in the future
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this,
                         "Error creating account. Please try again.",
@@ -600,7 +626,7 @@ public class Register extends JFrame {
             return;
         }
 
-        // Check each requirement
+        // Check each requirement using actualPassword instead of the field text
         boolean hasUppercase = actualPassword.matches(".*[A-Z].*");
         boolean hasSpecial = actualPassword.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
         boolean hasNumber = actualPassword.matches(".*[0-9].*");
@@ -653,9 +679,8 @@ public class Register extends JFrame {
             return false;
         }
 
-        // Check password
-        String password = passwordField.getText();
-        if (password.equals("PASSWORD") || password.trim().isEmpty()) {
+        // Check password - use actualPassword instead of field text
+        if (actualPassword.isEmpty() || passwordField.getText().equals("PASSWORD")) {
             JOptionPane.showMessageDialog(this,
                 "Please enter a password",
                 "Validation Error",
@@ -665,8 +690,7 @@ public class Register extends JFrame {
         }
 
         // Check confirm password
-        String confirm = confirmField.getText();
-        if (confirm.equals("CONFIRM") || confirm.trim().isEmpty()) {
+        if (actualConfirmPassword.isEmpty() || confirmField.getText().equals("CONFIRM")) {
             JOptionPane.showMessageDialog(this,
                 "Please confirm your password",
                 "Validation Error",
@@ -675,8 +699,8 @@ public class Register extends JFrame {
             return false;
         }
 
-        // Validate password requirements
-        if (!password.matches(".*[A-Z].*")) {
+        // Validate password requirements using actualPassword
+        if (!actualPassword.matches(".*[A-Z].*")) {
             JOptionPane.showMessageDialog(this,
                 "Password must contain at least one uppercase letter",
                 "Validation Error",
@@ -685,7 +709,7 @@ public class Register extends JFrame {
             return false;
         }
 
-        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+        if (!actualPassword.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
             JOptionPane.showMessageDialog(this,
                 "Password must contain at least one special character",
                 "Validation Error",
@@ -694,7 +718,7 @@ public class Register extends JFrame {
             return false;
         }
 
-        if (!password.matches(".*[0-9].*")) {
+        if (!actualPassword.matches(".*[0-9].*")) {
             JOptionPane.showMessageDialog(this,
                 "Password must contain at least one number",
                 "Validation Error",
@@ -703,7 +727,7 @@ public class Register extends JFrame {
             return false;
         }
 
-        if (!password.equals(confirm)) {
+        if (!actualPassword.equals(actualConfirmPassword)) {
             JOptionPane.showMessageDialog(this,
                 "Passwords do not match",
                 "Validation Error",

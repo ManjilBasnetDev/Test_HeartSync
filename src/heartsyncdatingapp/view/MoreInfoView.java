@@ -457,6 +457,7 @@ public class MoreInfoView extends JFrame {
             UserProfile profile = controller.getModel();
             DatabaseManagerProfile dbManager = DatabaseManagerProfile.getInstance();
             int userId = dbManager.saveUserProfile(
+                controller.getCurrentUsername(),
                 profile.getFullName(),
                 profile.getHeight(),
                 profile.getWeight(),
