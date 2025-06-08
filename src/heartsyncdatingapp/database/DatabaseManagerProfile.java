@@ -110,7 +110,7 @@ public class DatabaseManagerProfile {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
-            try (PreparedStatement pstmt = conn.prepareStatement(insertUserSQL, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement pstmt = conn.prepareStatement(insertUserSQL)) {
                 pstmt.setInt(1, userId);
                 pstmt.setString(2, fullName);
                 pstmt.setInt(3, height);
@@ -124,19 +124,20 @@ public class DatabaseManagerProfile {
                 pstmt.setString(11, aboutMe);
                 pstmt.setString(12, profilePicPath);
                 pstmt.setString(13, relationChoice);
-
+                
                 pstmt.executeUpdate();
             }
 
             // Insert hobbies
-            String insertHobbySQL = "INSERT INTO user_hobbies (user_id, hobby) VALUES (?, ?)";
-            try (PreparedStatement pstmt = conn.prepareStatement(insertHobbySQL)) {
-                for (String hobby : hobbies) {
-                    pstmt.setInt(1, userId);
-                    pstmt.setString(2, hobby);
-                    pstmt.addBatch();
+            if (hobbies != null && !hobbies.isEmpty()) {
+                String insertHobbySQL = "INSERT INTO user_hobbies (user_id, hobby) VALUES (?, ?)";
+                try (PreparedStatement pstmt = conn.prepareStatement(insertHobbySQL)) {
+                    for (String hobby : hobbies) {
+                        pstmt.setInt(1, userId);
+                        pstmt.setString(2, hobby);
+                        pstmt.executeUpdate();
+                    }
                 }
-                pstmt.executeBatch();
             }
 
             conn.commit();
@@ -147,7 +148,7 @@ public class DatabaseManagerProfile {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    System.err.println("Error rolling back transaction: " + ex.getMessage());
+                    ex.printStackTrace();
                 }
             }
             throw e;
@@ -155,8 +156,9 @@ public class DatabaseManagerProfile {
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);
+                    conn.close();
                 } catch (SQLException e) {
-                    System.err.println("Error resetting auto-commit: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }

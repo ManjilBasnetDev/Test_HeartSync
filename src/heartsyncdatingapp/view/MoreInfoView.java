@@ -473,7 +473,7 @@ public class MoreInfoView extends JFrame {
                 selectedHobbies
             );
 
-            if (userId != -1) {
+            if (userId > 0) {
                 JOptionPane.showMessageDialog(this,
                     "Profile created successfully!\nYour User ID is: " + userId,
                     "Success",

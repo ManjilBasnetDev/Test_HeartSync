@@ -22,6 +22,7 @@ import javax.swing.border.LineBorder;
 import heartsyncdatingapp.HomePage;
 import heartsyncdatingapp.controller.ShowHideController;
 import heartsyncdatingapp.dao.UserDAOLogin;
+import heartsyncdatingapp.view.ForgotPassword;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -171,11 +172,9 @@ lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
 lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
     public void mouseClicked(java.awt.event.MouseEvent evt) {
-        // This is what happens when clicked
-        JOptionPane.showMessageDialog(null, 
-            "Password reset instructions sent to your  Username, Favorite Color?, First School?.",
-            "Forgot Password",
-            JOptionPane.INFORMATION_MESSAGE);
+        ForgotPassword forgotPasswordView = new ForgotPassword();
+        forgotPasswordView.setVisible(true);
+        dispose(); // Close login window
     }
 });
 
@@ -365,9 +364,16 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
 
         // Forgot password link
         lblForgotPassword.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        lblForgotPassword.setForeground(new java.awt.Color(66, 139, 202));
+        lblForgotPassword.setForeground(new java.awt.Color(51, 51, 255));
         lblForgotPassword.setText("Forgot Password?");
         lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ForgotPassword forgotPasswordView = new ForgotPassword();
+                forgotPasswordView.setVisible(true);
+                dispose(); // Close login window
+            }
+        });
         lblForgotPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Button panel

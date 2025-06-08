@@ -1,18 +1,31 @@
 package heartsyncdatingapp.controller;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import heartsyncdatingapp.dao.UserRegisterDAO;
+import heartsyncdatingapp.model.User;
 import heartsyncdatingapp.model.UserProfile;
 import heartsyncdatingapp.view.MoreInfoView;
 
 public class UserProfileController {
     private UserProfile model;
     private String currentUsername;
+    private int userId;
     private MoreInfoView moreInfoView;
 
     public UserProfileController(UserProfile model, String username) {
         this.model = model;
         this.currentUsername = username;
+        try {
+            UserRegisterDAO userDAO = new UserRegisterDAO();
+            User user = userDAO.getUser(username);
+            if (user != null) {
+                this.userId = user.getId();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public UserProfile getModel() {
@@ -21,6 +34,10 @@ public class UserProfileController {
 
     public String getCurrentUsername() {
         return currentUsername;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     // Basic info methods

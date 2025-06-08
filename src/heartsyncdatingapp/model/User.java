@@ -1,5 +1,9 @@
 package heartsyncdatingapp.model;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.Period;
+
 public class User {
     private int id;
     private String username;
@@ -7,12 +11,16 @@ public class User {
     private String userType;
     private String email;
     private String phoneNumber;
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
     private String gender;
     private String interests;
     private String bio;
     private String securityQuestion;
     private String securityAnswer;
+    private String favoriteColor;
+    private String firstSchool;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
     
     // Default constructor
     public User() {}
@@ -26,7 +34,7 @@ public class User {
     
     // Full constructor
     public User(int id, String username, String password, String userType, 
-                String email, String phoneNumber, String dateOfBirth, 
+                String email, String phoneNumber, LocalDate dateOfBirth, 
                 String gender, String interests, String bio) {
         this.id = id;
         this.username = username;
@@ -89,11 +97,11 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
     
-    public String getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
     
-    public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
     
@@ -135,6 +143,46 @@ public class User {
     
     public void setSecurityAnswer(String securityAnswer) {
         this.securityAnswer = securityAnswer;
+    }
+    
+    public String getFavoriteColor() {
+        return favoriteColor;
+    }
+    
+    public void setFavoriteColor(String favoriteColor) {
+        this.favoriteColor = favoriteColor;
+    }
+    
+    public String getFirstSchool() {
+        return firstSchool;
+    }
+    
+    public void setFirstSchool(String firstSchool) {
+        this.firstSchool = firstSchool;
+    }
+    
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+    
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+    
+    // Helper method to check if user is 18+
+    public boolean isAdult() {
+        if (dateOfBirth == null) {
+            return false;
+        }
+        return Period.between(dateOfBirth, LocalDate.now()).getYears() >= 18;
     }
     
     @Override

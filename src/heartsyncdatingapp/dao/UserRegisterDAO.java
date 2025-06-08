@@ -1,6 +1,7 @@
 package heartsyncdatingapp.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,15 +20,31 @@ public class UserRegisterDAO {
     }
     
     public boolean createUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, user_type, date_of_birth, favorite_color, first_school) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
         
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getUserType());
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, DatabaseConnection.hashPassword(user.getPassword()));
+            stmt.setString(3, user.getUserType());
+            stmt.setDate(4, Date.valueOf(user.getDateOfBirth()));
+            stmt.setString(5, user.getFavoriteColor());
+            stmt.setString(6, user.getFirstSchool());
             
-            int rowsInserted = statement.executeUpdate();
-            return rowsInserted > 0;
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                // Get the generated ID
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        user.setId(generatedKeys.getInt(1));
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            System.err.println("Error creating user: " + e.getMessage());
+            throw e;
         }
     }
     
@@ -67,7 +84,7 @@ public class UserRegisterDAO {
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
-            stmt.setString(2, password);
+            stmt.setString(2, DatabaseConnection.hashPassword(password));
             ResultSet rs = stmt.executeQuery();
             
             return rs.next(); // Returns true if user exists with given credentials
@@ -98,10 +115,10 @@ public class UserRegisterDAO {
                     "date_of_birth = ?, gender = ?, interests = ?, bio = ? WHERE username = ?";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, user.getPassword());
+            stmt.setString(1, DatabaseConnection.hashPassword(user.getPassword()));
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getPhoneNumber());
-            stmt.setString(4, user.getDateOfBirth());
+            stmt.setDate(4, Date.valueOf(user.getDateOfBirth()));
             stmt.setString(5, user.getGender());
             stmt.setString(6, user.getInterests());
             stmt.setString(7, user.getBio());
@@ -127,17 +144,29 @@ public class UserRegisterDAO {
     }
     
     private User extractUserFromResultSet(ResultSet rs) throws SQLException {
-        return new User(
-            rs.getInt("id"),
-            rs.getString("username"),
-            rs.getString("password"),
-            rs.getString("user_type"),
-            rs.getString("email"),
-            rs.getString("phone_number"),
-            rs.getString("date_of_birth"),
-            rs.getString("gender"),
-            rs.getString("interests"),
-            rs.getString("bio")
-        );
+        User user = new User();
+        user.setId(rs.getInt("id"));
+        user.setUsername(rs.getString("username"));
+        user.setPassword(rs.getString("password"));
+        user.setUserType(rs.getString("user_type"));
+        user.setEmail(rs.getString("email"));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
+        user.setGender(rs.getString("gender"));
+        user.setInterests(rs.getString("interests"));
+        user.setBio(rs.getString("bio"));
+        user.setFavoriteColor(rs.getString("favorite_color"));
+        user.setFirstSchool(rs.getString("first_school"));
+        return user;
+    }
+    
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
     }
 } 

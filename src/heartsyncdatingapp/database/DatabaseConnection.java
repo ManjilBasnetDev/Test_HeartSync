@@ -1,5 +1,7 @@
 package heartsyncdatingapp.database;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -8,177 +10,115 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Unified database connection manager for the HeartSync Dating App.
  * Handles all database operations including initialization and connection management.
  */
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/";
-    private static final String DB_NAME = "TestHeartSync";
-    private static final String USERNAME = "manjil";
-    private static final String PASSWORD = "3023";
-    private static boolean driverLoaded = false;
+    private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
     private static Connection connection = null;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int MINIMUM_AGE = 18;
+    private static final int PASSWORD_MIN_LENGTH = 8;
     
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            driverLoaded = true;
-            initializeDatabase();
+            LOGGER.info("MySQL JDBC Driver loaded successfully");
         } catch (ClassNotFoundException e) {
-            System.err.println("MySQL JDBC Driver not found: " + e.getMessage());
-        } catch (SQLException e) {
-            System.err.println("Error initializing database: " + e.getMessage());
-        }
-    }
-    
-    public static Connection getConnection() throws SQLException {
-        if (!driverLoaded) {
-            throw new SQLException("MySQL JDBC Driver not loaded");
-        }
-        
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL + DB_NAME, USERNAME, PASSWORD);
-        }
-        
-        return connection;
-    }
-    
-    private static void initializeDatabase() throws SQLException {
-        if (!driverLoaded) {
-            return;
+            LOGGER.log(Level.SEVERE, "MySQL JDBC Driver not found", e);
+            throw new RuntimeException("MySQL JDBC Driver not found", e);
         }
         
         try {
-            // First try connecting to MySQL server
-            try (Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
-                try (Statement stmt = conn.createStatement()) {
-                    // Create database if it doesn't exist
-                    stmt.executeUpdate("DROP DATABASE IF EXISTS " + DB_NAME);
-                    stmt.executeUpdate("CREATE DATABASE " + DB_NAME);
-                    
-                    // Use the database
-                    stmt.executeUpdate("USE " + DB_NAME);
-                    
-                    // Create users table - main user authentication and basic info
-                    String createUsersTableSQL = """
-                        CREATE TABLE users (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            username VARCHAR(50) NOT NULL UNIQUE,
-                            password VARCHAR(255) NOT NULL,
-                            user_type ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
-                            email VARCHAR(100) UNIQUE,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                        )
-                    """;
-                    stmt.executeUpdate(createUsersTableSQL);
-                    
-                    // Create user_profiles table - detailed user information
-                    String createUserProfilesTableSQL = """
-                        CREATE TABLE user_profiles (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            user_id INT NOT NULL UNIQUE,
-                            full_name VARCHAR(100) NOT NULL,
-                            height INT NOT NULL,
-                            weight INT NOT NULL,
-                            country VARCHAR(50) NOT NULL,
-                            address VARCHAR(200) NOT NULL,
-                            phone VARCHAR(20) NOT NULL,
-                            qualification VARCHAR(100) NOT NULL,
-                            gender VARCHAR(20) NOT NULL,
-                            preferences VARCHAR(20) NOT NULL,
-                            about_me TEXT NOT NULL,
-                            profile_pic_path VARCHAR(500),
-                            relation_choice VARCHAR(50) NOT NULL,
-                            date_of_birth DATE,
-                            interests TEXT,
-                            bio TEXT,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                        )
-                    """;
-                    stmt.executeUpdate(createUserProfilesTableSQL);
-                    
-                    // Create user_hobbies table
-                    String createHobbiesTableSQL = """
-                        CREATE TABLE user_hobbies (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            user_id INT NOT NULL,
-                            hobby VARCHAR(100) NOT NULL,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                        )
-                    """;
-                    stmt.executeUpdate(createHobbiesTableSQL);
-                    
-                    // Create contacts table for contact form submissions
-                    String createContactsTableSQL = """
-                        CREATE TABLE contacts (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            full_name VARCHAR(100) NOT NULL,
-                            email VARCHAR(100) NOT NULL,
-                            phone_number VARCHAR(20),
-                            subject VARCHAR(200),
-                            message TEXT NOT NULL,
-                            status ENUM('NEW', 'READ', 'REPLIED') DEFAULT 'NEW',
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                        )
-                    """;
-                    stmt.executeUpdate(createContactsTableSQL);
-                    
-                    // Create matches table for user matches
-                    String createMatchesTableSQL = """
-                        CREATE TABLE matches (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            user1_id INT NOT NULL,
-                            user2_id INT NOT NULL,
-                            match_status ENUM('PENDING', 'ACCEPTED', 'REJECTED') DEFAULT 'PENDING',
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                            FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
-                            FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE
-                        )
-                    """;
-                    stmt.executeUpdate(createMatchesTableSQL);
-                    
-                    // Create messages table for user communication
-                    String createMessagesTableSQL = """
-                        CREATE TABLE messages (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            sender_id INT NOT NULL,
-                            receiver_id INT NOT NULL,
-                            message_text TEXT NOT NULL,
-                            message_type ENUM('TEXT', 'IMAGE', 'FILE') DEFAULT 'TEXT',
-                            attachment_path VARCHAR(255),
-                            is_read BOOLEAN DEFAULT FALSE,
-                            sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            read_at TIMESTAMP NULL,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                            FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
-                            FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
-                        )
-                    """;
-                    stmt.executeUpdate(createMessagesTableSQL);
-
-                    // Insert default admin user
-                    String insertAdminSQL = """
-                        INSERT INTO users (username, password, user_type, email)
-                        VALUES ('admin', 'admin123', 'ADMIN', 'admin@heartsync.com')
-                    """;
-                    stmt.executeUpdate(insertAdminSQL);
-                    
-                    System.out.println("Database and tables initialized successfully");
+            // Test initial connection and create database if needed
+            try (Connection tempConn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/",
+                    DatabaseConfig.getDbUser(),
+                    DatabaseConfig.getDbPassword())) {
+                
+                // Create database if it doesn't exist
+                try (Statement stmt = tempConn.createStatement()) {
+                    stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS TestHeartSync");
+                    LOGGER.info("Database 'TestHeartSync' verified/created");
                 }
             }
+            
+            // Initialize tables
+            initializeDatabase();
+            LOGGER.info("Database initialization completed successfully");
         } catch (SQLException e) {
-            System.err.println("Error initializing database: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Failed to initialize database", e);
+            throw new RuntimeException("Failed to initialize database", e);
+        }
+    }
+    
+    public static synchronized Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            try {
+                connection = DriverManager.getConnection(
+                    DatabaseConfig.getDbUrl(),
+                    DatabaseConfig.getDbUser(),
+                    DatabaseConfig.getDbPassword()
+                );
+                connection.setAutoCommit(true);
+                LOGGER.info("Database connection established successfully");
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Failed to establish database connection", e);
+                throw e;
+            }
+        }
+        return connection;
+    }
+    
+    public static void initializeDatabase() throws SQLException {
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            
+            // Create users table with all necessary fields
+            String createTableSQL = 
+                "CREATE TABLE IF NOT EXISTS users (" +
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                "username VARCHAR(50) NOT NULL UNIQUE, " +
+                "password VARCHAR(255) NOT NULL, " +
+                "user_type VARCHAR(10) NOT NULL, " +
+                "date_of_birth DATE NOT NULL, " +
+                "favorite_color VARCHAR(50) NOT NULL, " +
+                "first_school VARCHAR(100) NOT NULL, " +
+                "email VARCHAR(100), " +
+                "phone_number VARCHAR(20), " +
+                "gender VARCHAR(20), " +
+                "interests TEXT, " +
+                "bio TEXT, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " +
+                "INDEX idx_username (username), " +  // Add index for username lookups
+                "INDEX idx_email (email)" +          // Add index for email lookups
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+            
+            stmt.executeUpdate(createTableSQL);
+            LOGGER.info("Users table created/verified successfully");
+            
+            // Create contacts table
+            String createContactsTableSQL = 
+                "CREATE TABLE IF NOT EXISTS contacts (" +
+                "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                "full_name VARCHAR(100) NOT NULL, " +
+                "email VARCHAR(100) NOT NULL, " +
+                "message TEXT NOT NULL, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "INDEX idx_email (email)" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+            
+            stmt.executeUpdate(createContactsTableSQL);
+            LOGGER.info("Contacts table created/verified successfully");
+            
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error creating database tables", e);
             throw e;
         }
     }
@@ -186,21 +126,27 @@ public class DatabaseConnection {
     public static void closeConnection() {
         if (connection != null) {
             try {
-                connection.close();
-                connection = null;
+                if (!connection.isClosed()) {
+                    connection.close();
+                    connection = null;
+                    LOGGER.info("Database connection closed successfully");
+                }
             } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
+                LOGGER.log(Level.WARNING, "Error closing database connection", e);
             }
         }
     }
     
     public static boolean testConnection() {
         try (Connection conn = getConnection()) {
-            return conn != null && conn.isValid(5); // 5 second timeout
+            if (conn != null && conn.isValid(5)) { // 5 second timeout
+                LOGGER.info("Database connection test successful");
+                return true;
+            }
+            LOGGER.warning("Database connection test failed - connection invalid");
+            return false;
         } catch (SQLException e) {
-            String error = "Database connection test failed: " + e.getMessage();
-            System.err.println(error);
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Database connection test failed", e);
             return false;
         }
     }
@@ -229,5 +175,66 @@ public class DatabaseConnection {
     
     public static int calculateAge(LocalDate dateOfBirth) {
         return Period.between(dateOfBirth, LocalDate.now()).getYears();
+    }
+    
+    /**
+     * Validates a password against security requirements.
+     * @param password The password to validate
+     * @throws IllegalArgumentException if the password doesn't meet requirements
+     */
+    public static void validatePassword(String password) {
+        if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
+            throw new IllegalArgumentException("Password must be at least " + PASSWORD_MIN_LENGTH + " characters long");
+        }
+        
+        if (!password.matches(".*[A-Z].*")) {
+            throw new IllegalArgumentException("Password must contain at least one uppercase letter");
+        }
+        
+        if (!password.matches(".*[0-9].*")) {
+            throw new IllegalArgumentException("Password must contain at least one number");
+        }
+        
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+            throw new IllegalArgumentException("Password must contain at least one special character");
+        }
+    }
+    
+    /**
+     * Hash a password using SHA-256.
+     * @param password The plain text password
+     * @return The hashed password
+     */
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.log(Level.SEVERE, "Error hashing password", e);
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+    
+    /**
+     * Validates an email address format.
+     * @param email The email to validate
+     * @throws IllegalArgumentException if the email format is invalid
+     */
+    public static void validateEmail(String email) {
+        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+    }
+    
+    /**
+     * Validates a phone number format.
+     * @param phone The phone number to validate
+     * @throws IllegalArgumentException if the phone format is invalid
+     */
+    public static void validatePhone(String phone) {
+        if (phone == null || !phone.matches("^\\+?[0-9]{10,15}$")) {
+            throw new IllegalArgumentException("Invalid phone number format");
+        }
     }
 }
