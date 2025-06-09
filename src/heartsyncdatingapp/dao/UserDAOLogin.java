@@ -19,9 +19,9 @@ public class UserDAOLogin {
     private Connection connection;
     
     public UserDAOLogin() throws SQLException {
-        this.connection = DatabaseConnection.getConnection();
-        if (this.connection == null) {
-            throw new SQLException("Could not establish database connection");
+            this.connection = DatabaseConnection.getConnection();
+            if (this.connection == null) {
+                throw new SQLException("Could not establish database connection");
         }
     }
     

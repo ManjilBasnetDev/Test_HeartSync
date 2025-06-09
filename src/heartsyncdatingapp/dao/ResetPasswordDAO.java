@@ -1,22 +1,33 @@
 package heartsyncdatingapp.dao;
 
-import heartsyncdatingapp.database.DatabaseConnection;
-import heartsyncdatingapp.model.User;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import heartsyncdatingapp.database.DatabaseConnection;
+import heartsyncdatingapp.model.User;
 
 public class ResetPasswordDAO {
     
     public boolean createUser(User user) {
-        String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, user_type, date_of_birth, favorite_color, first_school, email, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getEmail());
+            pstmt.setString(3, user.getUserType());
+            pstmt.setDate(4, Date.valueOf(user.getDateOfBirth()));
+            pstmt.setString(5, user.getFavoriteColor());
+            pstmt.setString(6, user.getFirstSchool());
+            pstmt.setString(7, user.getEmail());
+            pstmt.setString(8, user.getPhoneNumber());
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -66,15 +77,15 @@ public class ResetPasswordDAO {
     }
     
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?";
+        String sql = "UPDATE users SET password = ? WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setInt(4, user.getId());
+            // Hash the password before storing
+            String hashedPassword = DatabaseConnection.hashPassword(user.getPassword());
+            pstmt.setString(1, hashedPassword);
+            pstmt.setInt(2, user.getId());
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -142,9 +153,19 @@ public class ResetPasswordDAO {
         user.setId(rs.getInt("id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password"));
+        user.setUserType(rs.getString("user_type"));
+        
+        // Handle date conversion
+        Date dobDate = rs.getDate("date_of_birth");
+        if (dobDate != null) {
+            user.setDateOfBirth(dobDate.toLocalDate());
+        }
+        
+        user.setFavoriteColor(rs.getString("favorite_color"));
+        user.setFirstSchool(rs.getString("first_school"));
         user.setEmail(rs.getString("email"));
-        user.setCreatedAt(rs.getTimestamp("created_at"));
-        user.setUpdatedAt(rs.getTimestamp("updated_at"));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        
         return user;
     }
 } 

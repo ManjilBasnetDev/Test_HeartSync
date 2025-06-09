@@ -1,6 +1,8 @@
 package heartsyncdatingapp.view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -29,9 +31,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -68,21 +67,28 @@ public class Register extends JFrame {
 
     public Register() {
         try {
-            // Set system look and feel
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            
-            // Set look and feel properties first
-            UIManager.put("TextField.background", Color.WHITE);
-            UIManager.put("PasswordField.background", Color.WHITE);
-            UIManager.put("TextField.opaque", true);
-            UIManager.put("PasswordField.opaque", true);
-            UIManager.put("Panel.background", new Color(255, 219, 227));
-            UIManager.put("Panel.opaque", true);
-            UIManager.put("ComboBox.background", Color.WHITE);
-            UIManager.put("ComboBox.foreground", new Color(33, 33, 33));
-            UIManager.put("ComboBox.selectionBackground", new Color(219, 112, 147));
-            UIManager.put("ComboBox.selectionForeground", Color.WHITE);
-            
+            // Set cross-platform look and feel
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        
+            // Override all background colors to ensure white backgrounds
+        UIManager.put("TextField.background", Color.WHITE);
+        UIManager.put("PasswordField.background", Color.WHITE);
+            UIManager.put("FormattedTextField.background", Color.WHITE);
+            UIManager.put("TextField.foreground", Color.BLACK);
+            UIManager.put("PasswordField.foreground", Color.BLACK);
+            UIManager.put("FormattedTextField.foreground", Color.BLACK);
+            UIManager.put("TextField.caretForeground", Color.BLACK);
+            UIManager.put("PasswordField.caretForeground", Color.BLACK);
+            UIManager.put("FormattedTextField.caretForeground", Color.BLACK);
+            UIManager.put("TextField.selectionBackground", new Color(229, 89, 36));
+            UIManager.put("PasswordField.selectionBackground", new Color(229, 89, 36));
+            UIManager.put("FormattedTextField.selectionBackground", new Color(229, 89, 36));
+            UIManager.put("TextField.selectionForeground", Color.WHITE);
+            UIManager.put("PasswordField.selectionForeground", Color.WHITE);
+            UIManager.put("FormattedTextField.selectionForeground", Color.WHITE);
+        UIManager.put("Panel.background", new Color(255, 219, 227));
+        UIManager.put("Panel.opaque", true);
+        
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,24 +117,36 @@ public class Register extends JFrame {
         SwingUtilities.invokeLater(() -> {
             mainPanel.setBackground(new Color(255, 219, 227));
             mainPanel.setOpaque(true);
-            usernameField.setBackground(Color.WHITE);
-            usernameField.setOpaque(true);
-            passwordField.setBackground(Color.WHITE);
-            passwordField.setOpaque(true);
-            confirmField.setBackground(Color.WHITE);
-            confirmField.setOpaque(true);
-            favoriteColorField.setBackground(Color.WHITE);
-            favoriteColorField.setOpaque(true);
-            firstSchoolField.setBackground(Color.WHITE);
-            firstSchoolField.setOpaque(true);
-            
-            // Apply background color to combo boxes
-            if (dobField != null) dobField.setBackground(Color.WHITE);
+            enforceFieldStyles();
+        });
+    }
+
+    private void enforceFieldStyles() {
+        // Enforce white background and proper text colors for all fields
+        Component[] components = mainPanel.getComponents();
+        for (Component comp : components) {
+            if (comp instanceof JTextField) {
+                JTextField field = (JTextField) comp;
+                field.setBackground(Color.WHITE);
+                field.setOpaque(true);
+                field.setForeground(field.getText().equals(getPlaceholderFor(field)) ? 
+                    new Color(136, 136, 136) : Color.BLACK);
+            }
+        }
             
             // Force a repaint
             mainPanel.revalidate();
             mainPanel.repaint();
-        });
+    }
+
+    private String getPlaceholderFor(JTextField field) {
+        if (field == usernameField) return "USERNAME";
+        if (field == passwordField) return "Enter password";
+        if (field == confirmField) return "Confirm password";
+        if (field == favoriteColorField) return "FAVORITE COLOR";
+        if (field == firstSchoolField) return "FIRST SCHOOL";
+        if (field == dobField) return "YYYY/MM/DD";
+        return "";
     }
 
     private void setupAccessibility() {
@@ -158,35 +176,73 @@ public class Register extends JFrame {
     private void setupTextFields() {
         // Username setup with placeholder
         usernameField.setText("USERNAME");
-        usernameField.setForeground(Color.GRAY);
+        usernameField.setForeground(new Color(136, 136, 136));
         usernameField.setBackground(Color.WHITE);
         usernameField.setOpaque(true);
         usernameField.setDocument(new LengthRestrictedDocument(50)); // Limit to 50 chars
 
         // Password setup
         passwordField.setText("Enter password");
-        passwordField.setForeground(Color.GRAY);
+        passwordField.setForeground(new Color(136, 136, 136));
         passwordField.setBackground(Color.WHITE);
         passwordField.setOpaque(true);
 
         // Confirm password setup
         confirmField.setText("Confirm password");
-        confirmField.setForeground(Color.GRAY);
+        confirmField.setForeground(new Color(136, 136, 136));
         confirmField.setBackground(Color.WHITE);
         confirmField.setOpaque(true);
 
         // Security questions setup
         favoriteColorField.setText("FAVORITE COLOR");
-        favoriteColorField.setForeground(Color.GRAY);
+        favoriteColorField.setForeground(new Color(136, 136, 136));
         favoriteColorField.setBackground(Color.WHITE);
         favoriteColorField.setOpaque(true);
         favoriteColorField.setDocument(new LengthRestrictedDocument(50));
 
         firstSchoolField.setText("FIRST SCHOOL");
-        firstSchoolField.setForeground(Color.GRAY);
+        firstSchoolField.setForeground(new Color(136, 136, 136));
         firstSchoolField.setBackground(Color.WHITE);
         firstSchoolField.setOpaque(true);
         firstSchoolField.setDocument(new LengthRestrictedDocument(50));
+
+        // Add focus listeners for favorite color field
+        favoriteColorField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (favoriteColorField.getText().equals("FAVORITE COLOR")) {
+                    favoriteColorField.setText("");
+                    favoriteColorField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (favoriteColorField.getText().isEmpty()) {
+                    favoriteColorField.setText("FAVORITE COLOR");
+                    favoriteColorField.setForeground(new Color(136, 136, 136));
+                }
+            }
+        });
+
+        // Add focus listeners for first school field
+        firstSchoolField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (firstSchoolField.getText().equals("FIRST SCHOOL")) {
+                    firstSchoolField.setText("");
+                    firstSchoolField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (firstSchoolField.getText().isEmpty()) {
+                    firstSchoolField.setText("FIRST SCHOOL");
+                    firstSchoolField.setForeground(new Color(136, 136, 136));
+                }
+            }
+        });
     }
 
     // Add this inner class for character limit
@@ -269,43 +325,48 @@ public class Register extends JFrame {
         mainPanel.add(userTypePanel);
 
         // Date of birth section with modern styling
+        JPanel dobPanel = new JPanel(new BorderLayout(10, 5));
+        dobPanel.setOpaque(false);
+        dobPanel.setBounds(50, 380, FIELD_WIDTH, 100);
+
         JLabel dobLabel = new JLabel("Date of Birth");
         dobLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        dobLabel.setBounds(50, 380, 200, 30);
         dobLabel.setForeground(new Color(112, 0, 61));
-        mainPanel.add(dobLabel);
+        dobPanel.add(dobLabel, BorderLayout.NORTH);
 
         // Create DOB text field with placeholder
-        dobField = createStyledTextField("YYYY/MM/DD", 410);
+        dobField = createStyledTextField("YYYY/MM/DD", 0);
+        dobPanel.add(dobField, BorderLayout.CENTER);
 
-        // Age display label
-        JLabel ageLabel = new JLabel("Age: ");
+        // Age display label with initial instruction
+        JLabel ageLabel = new JLabel("Enter your date of birth");
         ageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        ageLabel.setForeground(new Color(112, 0, 61));
-        ageLabel.setBounds(50, 460, 200, 30);
-        mainPanel.add(ageLabel);
+        ageLabel.setForeground(new Color(136, 136, 136));
+        dobPanel.add(ageLabel, BorderLayout.SOUTH);
 
-        // Security questions
-        favoriteColorField = createStyledTextField("FAVORITE COLOR", 500);
-        firstSchoolField = createStyledTextField("FIRST SCHOOL", 570);
+        mainPanel.add(dobPanel);
 
-        // Add document listener to update age
+        // Add document listener to update age in real-time
         dobField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                updateAgeLabel(ageLabel);
+                updateAge(dobField, ageLabel);
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                updateAgeLabel(ageLabel);
+                updateAge(dobField, ageLabel);
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                updateAgeLabel(ageLabel);
+                updateAge(dobField, ageLabel);
             }
         });
+
+        // Security questions
+        favoriteColorField = createStyledTextField("FAVORITE COLOR", 500);
+        firstSchoolField = createStyledTextField("FIRST SCHOOL", 570);
 
         // Modern styled buttons
         continueButton = createStyledButton("Continue", new Color(229, 89, 36));
@@ -340,41 +401,55 @@ public class Register extends JFrame {
     }
 
     private JTextField createStyledTextField(String placeholder, int yPosition) {
-        JTextField field = new JTextField(placeholder);
+        JTextField field = new JTextField();
+        field.setText(placeholder);
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        field.setForeground(Color.GRAY);
+        field.setForeground(new Color(136, 136, 136));
         field.setBackground(Color.WHITE);
         field.setOpaque(true);
-        field.setBorder(new CompoundBorder(
-            new LineBorder(new Color(200, 200, 200), 1, true),
-            new EmptyBorder(5, 15, 5, 15)
+        field.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+            BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
         field.setBounds(50, yPosition, FIELD_WIDTH, 45);
 
-        // Add focus listener for placeholder behavior
+        // Override the text field's paint component to ensure consistent background
+        field.setUI(new javax.swing.plaf.basic.BasicTextFieldUI() {
+            @Override
+            protected void paintBackground(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setColor(field.getBackground());
+                g2d.fillRect(0, 0, field.getWidth(), field.getHeight());
+                g2d.dispose();
+            }
+        });
+
+        // Add focus listener for placeholder and highlight behavior
         field.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
+                field.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(229, 89, 36), 2),
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                ));
+                
                 if (field.getText().equals(placeholder)) {
                     field.setText("");
                     field.setForeground(Color.BLACK);
                 }
-                field.setBorder(new CompoundBorder(
-                    new LineBorder(new Color(229, 89, 36), 1, true),
-                    new EmptyBorder(5, 15, 5, 15)
-                ));
             }
             
             @Override
             public void focusLost(FocusEvent e) {
+                field.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                ));
+                
                 if (field.getText().isEmpty()) {
                     field.setText(placeholder);
-                    field.setForeground(Color.GRAY);
+                    field.setForeground(new Color(136, 136, 136));
                 }
-                field.setBorder(new CompoundBorder(
-                    new LineBorder(new Color(200, 200, 200), 1, true),
-                    new EmptyBorder(5, 15, 5, 15)
-                ));
             }
         });
 
@@ -533,11 +608,11 @@ public class Register extends JFrame {
                                 }
                             }
                         
-                            if (!isPasswordVisible) {
-                                isUpdatingPassword = true;
-                                passwordField.setText("•".repeat(actualPassword.length()));
-                                isUpdatingPassword = false;
-                            }
+                        if (!isPasswordVisible) {
+                            isUpdatingPassword = true;
+                            passwordField.setText("•".repeat(actualPassword.length()));
+                            isUpdatingPassword = false;
+                        }
                         }
                         validateFields();
                     });
@@ -577,7 +652,7 @@ public class Register extends JFrame {
             public void focusLost(FocusEvent e) {
                 if (passwordField.getText().isEmpty()) {
                     isUpdatingPassword = true;
-                    passwordField.setForeground(Color.GRAY);
+                    passwordField.setForeground(Color.BLACK);
                     passwordField.setText("Enter password");
                     actualPassword = "";
                     isUpdatingPassword = false;
@@ -600,7 +675,7 @@ public class Register extends JFrame {
             public void focusLost(FocusEvent e) {
                 if (confirmField.getText().isEmpty()) {
                     isUpdatingConfirm = true;
-                    confirmField.setForeground(Color.GRAY);
+                    confirmField.setForeground(Color.BLACK);
                     confirmField.setText("Confirm password");
                     actualConfirmPassword = "";
                     isUpdatingConfirm = false;
@@ -627,10 +702,10 @@ public class Register extends JFrame {
                             }
                         
                             if (!isConfirmPasswordVisible) {
-                                isUpdatingConfirm = true;
+                isUpdatingConfirm = true;
                                 confirmField.setText("•".repeat(actualConfirmPassword.length()));
-                                isUpdatingConfirm = false;
-                            }
+                isUpdatingConfirm = false;
+            }
                         }
                         validateFields();
                     });
@@ -655,30 +730,53 @@ public class Register extends JFrame {
         });
     }
 
-    private void updateAgeLabel(JLabel ageLabel) {
+    private void updateAge(JTextField dobField, JLabel ageLabel) {
+        String dateStr = dobField.getText().trim();
+        
+        // Skip validation for placeholder text
+        if (dateStr.equals("YYYY/MM/DD")) {
+            ageLabel.setText("Enter your date of birth");
+            ageLabel.setForeground(new Color(136, 136, 136));
+            return;
+        }
+
         try {
-            String dateStr = dobField.getText().trim();
+            // Try to parse the date
             String[] parts = dateStr.split("/");
             if (parts.length == 3) {
                 int year = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
                 int day = Integer.parseInt(parts[2]);
-                
+
+                // Validate date components
+                if (year < 1900 || year > LocalDate.now().getYear() ||
+                    month < 1 || month > 12 || day < 1 || day > 31) {
+                    throw new IllegalArgumentException("Invalid date values");
+                }
+
                 LocalDate dob = LocalDate.of(year, month, day);
                 int age = Period.between(dob, LocalDate.now()).getYears();
-                
-                ageLabel.setText("Age: " + age + " years" + (age < 18 ? " (Must be 18+ to register)" : ""));
-                ageLabel.setForeground(age < 18 ? Color.RED : new Color(112, 0, 61));
-                continueButton.setEnabled(age >= 18);
-            } else {
-                ageLabel.setText("Age: Invalid date format");
+
+                if (age < 18) {
+                    ageLabel.setText("<html><font color='red'>⚠ You must be at least 18 years old to register</font></html>");
+                    ageLabel.setForeground(Color.RED);
+                    continueButton.setEnabled(false);
+                } else {
+                    ageLabel.setText(String.format("You are %d years old", age));
+                    ageLabel.setForeground(new Color(0, 128, 0)); // Dark green for valid age
+                    validateFields(); // Check other fields before enabling continue button
+                }
+            } else if (!dateStr.isEmpty()) {
+                ageLabel.setText("<html><font color='red'>⚠ Use format: YYYY/MM/DD</font></html>");
                 ageLabel.setForeground(Color.RED);
                 continueButton.setEnabled(false);
             }
         } catch (Exception e) {
-            ageLabel.setText("Age: Invalid date");
-            ageLabel.setForeground(Color.RED);
-            continueButton.setEnabled(false);
+            if (!dateStr.isEmpty()) {
+                ageLabel.setText("<html><font color='red'>⚠ Invalid date format</font></html>");
+                ageLabel.setForeground(Color.RED);
+                continueButton.setEnabled(false);
+            }
         }
     }
 
@@ -860,7 +958,7 @@ public class Register extends JFrame {
             firstSchoolField.requestFocus();
             return false;
         }
-        
+
         return true;
     }
     
@@ -904,6 +1002,39 @@ public class Register extends JFrame {
     }
 
     private void handleContinueButton() {
+        // First check age requirement
+        String dateStr = dobField.getText().trim();
+        if (!dateStr.equals("YYYY/MM/DD") && !dateStr.isEmpty()) {
+            try {
+                String[] parts = dateStr.split("/");
+                if (parts.length == 3) {
+                    int year = Integer.parseInt(parts[0]);
+                    int month = Integer.parseInt(parts[1]);
+                    int day = Integer.parseInt(parts[2]);
+                    
+                    LocalDate dob = LocalDate.of(year, month, day);
+                    int age = Period.between(dob, LocalDate.now()).getYears();
+                    
+                    if (age < 18) {
+                        JOptionPane.showMessageDialog(this,
+                            "You must be at least 18 years old to register.",
+                            "Age Restriction",
+                            JOptionPane.ERROR_MESSAGE);
+                        dobField.requestFocus();
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                    "Please enter a valid date in YYYY/MM/DD format.",
+                    "Invalid Date",
+                    JOptionPane.ERROR_MESSAGE);
+                dobField.requestFocus();
+                return;
+            }
+        }
+
+        // Then check all other validations
         if (!validateForm()) {
             return;
         }
@@ -995,11 +1126,6 @@ public class Register extends JFrame {
                     dao.closeConnection();
                 }
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                "Invalid date format. Please use YYYY/MM/DD format.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                 "An unexpected error occurred: " + ex.getMessage(),
@@ -1016,47 +1142,49 @@ public class Register extends JFrame {
         // Username validation
         String username = usernameField.getText().trim();
         if (username.isEmpty() || username.equals("USERNAME")) {
-            status.append("<font color='red'>✗ Username required</font><br>");
+            status.append("<font color='red'>⚠ Username required</font><br>");
             allValid = false;
         } else if (username.length() < 3) {
-            status.append("<font color='red'>✗ Username too short</font><br>");
+            status.append("<font color='red'>⚠ Username must be at least 3 characters</font><br>");
             allValid = false;
         } else {
-            status.append("<font color='green'>✓ Username valid</font><br>");
+            status.append("<font color='green'>✓ Username is valid</font><br>");
         }
 
         // Password validation
         if (actualPassword.isEmpty() || actualPassword.equals("Enter password")) {
-            status.append("<font color='red'>✗ Password required</font><br>");
+            status.append("<font color='red'>⚠ Password required</font><br>");
             allValid = false;
         } else {
             boolean hasUpperCase = actualPassword.matches(".*[A-Z].*");
             boolean hasSpecialChar = actualPassword.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
             boolean hasNumber = actualPassword.matches(".*[0-9].*");
+            boolean isLongEnough = actualPassword.length() >= 8;
             
             if (!hasUpperCase) {
-                status.append("<font color='red'>✗ Password needs uppercase letter</font><br>");
+                status.append("<font color='red'>⚠ Password needs an uppercase letter</font><br>");
                 allValid = false;
-            } else {
-                status.append("<font color='green'>✓ Uppercase letter included</font><br>");
             }
             if (!hasSpecialChar) {
-                status.append("<font color='red'>✗ Password needs special character</font><br>");
+                status.append("<font color='red'>⚠ Password needs a special character</font><br>");
                 allValid = false;
-            } else {
-                status.append("<font color='green'>✓ Special character included</font><br>");
             }
             if (!hasNumber) {
-                status.append("<font color='red'>✗ Password needs number</font><br>");
+                status.append("<font color='red'>⚠ Password needs a number</font><br>");
                 allValid = false;
-            } else {
-                status.append("<font color='green'>✓ Number included</font><br>");
+            }
+            if (!isLongEnough) {
+                status.append("<font color='red'>⚠ Password must be at least 8 characters</font><br>");
+                allValid = false;
+            }
+            if (hasUpperCase && hasSpecialChar && hasNumber && isLongEnough) {
+                status.append("<font color='green'>✓ Password meets all requirements</font><br>");
             }
         }
 
         // Confirm password validation
         if (!actualPassword.equals(actualConfirmPassword)) {
-            status.append("<font color='red'>✗ Passwords don't match</font><br>");
+            status.append("<font color='red'>⚠ Passwords don't match</font><br>");
             allValid = false;
         } else if (!actualConfirmPassword.isEmpty() && !actualConfirmPassword.equals("Confirm password")) {
             status.append("<font color='green'>✓ Passwords match</font><br>");
@@ -1064,8 +1192,8 @@ public class Register extends JFrame {
 
         // Date of birth validation
         String dobText = dobField.getText().trim();
-        if (dobText.isEmpty()) {
-            status.append("<font color='red'>✗ Date of birth required</font><br>");
+        if (dobText.isEmpty() || dobText.equals("YYYY/MM/DD")) {
+            status.append("<font color='red'>⚠ Date of birth required</font><br>");
             allValid = false;
         } else {
             try {
@@ -1078,17 +1206,17 @@ public class Register extends JFrame {
                     int age = Period.between(dob, LocalDate.now()).getYears();
                     
                     if (age < 18) {
-                        status.append("<font color='red'>✗ Must be 18+ to register</font><br>");
+                        status.append("<font color='red'>⚠ Must be 18+ to register</font><br>");
                         allValid = false;
                     } else {
                         status.append("<font color='green'>✓ Age verification passed</font><br>");
                     }
                 } else {
-                    status.append("<font color='red'>✗ Invalid date format (YYYY/MM/DD)</font><br>");
+                    status.append("<font color='red'>⚠ Invalid date format (use YYYY/MM/DD)</font><br>");
                     allValid = false;
                 }
             } catch (Exception e) {
-                status.append("<font color='red'>✗ Invalid date</font><br>");
+                status.append("<font color='red'>⚠ Invalid date</font><br>");
                 allValid = false;
             }
         }
@@ -1096,7 +1224,7 @@ public class Register extends JFrame {
         // Security questions validation
         String favoriteColor = favoriteColorField.getText().trim();
         if (favoriteColor.isEmpty() || favoriteColor.equals("FAVORITE COLOR")) {
-            status.append("<font color='red'>✗ Favorite color required</font><br>");
+            status.append("<font color='red'>⚠ Favorite color required</font><br>");
             allValid = false;
         } else {
             status.append("<font color='green'>✓ Favorite color provided</font><br>");
@@ -1104,7 +1232,7 @@ public class Register extends JFrame {
 
         String firstSchool = firstSchoolField.getText().trim();
         if (firstSchool.isEmpty() || firstSchool.equals("FIRST SCHOOL")) {
-            status.append("<font color='red'>✗ First school required</font><br>");
+            status.append("<font color='red'>⚠ First school required</font><br>");
             allValid = false;
         } else {
             status.append("<font color='green'>✓ First school provided</font><br>");
@@ -1114,7 +1242,7 @@ public class Register extends JFrame {
         validationLabel.setText(status.toString());
         continueButton.setEnabled(allValid);
     }
-
+    
     public static void main(String[] args) {
         try {
             // Set system look and feel

@@ -78,8 +78,8 @@ public class DatabaseConnection {
     public static void initializeDatabase() throws SQLException {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
-            
-            // Create users table with all necessary fields
+                    
+                    // Create users table with all necessary fields
             String createTableSQL = 
                 "CREATE TABLE IF NOT EXISTS users (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -102,7 +102,7 @@ public class DatabaseConnection {
             
             stmt.executeUpdate(createTableSQL);
             LOGGER.info("Users table created/verified successfully");
-            
+                    
             // Create contacts table
             String createContactsTableSQL = 
                 "CREATE TABLE IF NOT EXISTS contacts (" +
@@ -114,7 +114,7 @@ public class DatabaseConnection {
                 "INDEX idx_email (email)" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
             
-            stmt.executeUpdate(createContactsTableSQL);
+                    stmt.executeUpdate(createContactsTableSQL);
             LOGGER.info("Contacts table created/verified successfully");
             
         } catch (SQLException e) {
@@ -127,8 +127,8 @@ public class DatabaseConnection {
         if (connection != null) {
             try {
                 if (!connection.isClosed()) {
-                    connection.close();
-                    connection = null;
+                connection.close();
+                connection = null;
                     LOGGER.info("Database connection closed successfully");
                 }
             } catch (SQLException e) {

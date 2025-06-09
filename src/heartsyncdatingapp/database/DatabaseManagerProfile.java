@@ -124,17 +124,17 @@ public class DatabaseManagerProfile {
                 pstmt.setString(11, aboutMe);
                 pstmt.setString(12, profilePicPath);
                 pstmt.setString(13, relationChoice);
-                
+
                 pstmt.executeUpdate();
             }
 
             // Insert hobbies
             if (hobbies != null && !hobbies.isEmpty()) {
-                String insertHobbySQL = "INSERT INTO user_hobbies (user_id, hobby) VALUES (?, ?)";
-                try (PreparedStatement pstmt = conn.prepareStatement(insertHobbySQL)) {
-                    for (String hobby : hobbies) {
-                        pstmt.setInt(1, userId);
-                        pstmt.setString(2, hobby);
+            String insertHobbySQL = "INSERT INTO user_hobbies (user_id, hobby) VALUES (?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertHobbySQL)) {
+                for (String hobby : hobbies) {
+                    pstmt.setInt(1, userId);
+                    pstmt.setString(2, hobby);
                         pstmt.executeUpdate();
                     }
                 }
