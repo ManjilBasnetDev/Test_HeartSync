@@ -4,15 +4,22 @@
  */
 package heartsyncdatingapp.model;
 
-import heartsyncdatingapp.controller.ShowHideController;
-import heartsyncdatingapp.dao.UserDAOLogin;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.sql.SQLException;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+
+import heartsyncdatingapp.controller.ShowHideController;
+import heartsyncdatingapp.dao.UserDAOLogin;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -56,13 +63,8 @@ public class LoginFinal extends javax.swing.JFrame {
     private void setupTextFields() {
         // Username setup
         txtUsername.setText("USERNAME");
-<<<<<<< HEAD
 txtUsername.setForeground(Color.GRAY);
 
-=======
-        txtUsername.setForeground(Color.GRAY);
-        
->>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
         // Password setup
         txtPassword.setText("Enter password");
         txtPassword.setForeground(Color.GRAY);
@@ -102,7 +104,6 @@ txtUsername.setForeground(Color.GRAY);
 
     private void setupActionListeners() {
         // Username focus listener
-<<<<<<< HEAD
 txtUsername.addFocusListener(new java.awt.event.FocusAdapter() {
     @Override
     public void focusGained(java.awt.event.FocusEvent evt) {
@@ -139,44 +140,6 @@ txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
         }
     }
 });
-=======
-        txtUsername.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                if (txtUsername.getText().equals("USERNAME")) {
-                    txtUsername.setText("");
-                    txtUsername.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                if (txtUsername.getText().trim().isEmpty()) {
-                    txtUsername.setForeground(Color.GRAY);
-                    txtUsername.setText("USERNAME");
-                }
-            }
-        });
-
-        // Password focus listener
-        txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                if (txtPassword.getText().equals("Enter password")) {
-                    txtPassword.setText("");
-                    txtPassword.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                if (txtPassword.getText().trim().isEmpty()) {
-                    txtPassword.setForeground(Color.GRAY);
-                    txtPassword.setText("Enter password");
-                }
-            }
-        });
->>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
 
         // Back button action
         btnBack.addActionListener(e -> dispose());
@@ -184,7 +147,6 @@ txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
         // Login button action
         btnLogin.addActionListener(e -> performLogin());
 
-<<<<<<< HEAD
 lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
 lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -196,19 +158,6 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
             JOptionPane.INFORMATION_MESSAGE);
     }
 });
-=======
-        lblForgotPassword.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // This is what happens when clicked
-                JOptionPane.showMessageDialog(null, 
-                    "Password reset instructions sent to your  Username, Favorite Color?, First School?.",
-                    "Forgot Password",
-                    JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
->>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
 
         // Ensure initial state of password field
         SwingUtilities.invokeLater(() -> {
@@ -244,11 +193,7 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
                 
             if (username.isEmpty() || username.equals("USERNAME")) {
                 txtUsername.requestFocus();
-<<<<<<< HEAD
     } else {
-=======
-            } else {
->>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
                 txtPassword.requestFocus();
             }
             return;
@@ -271,11 +216,7 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
                 txtPassword.setText("");
                 showHideController.reset();
                 txtPassword.requestFocus();
-<<<<<<< HEAD
     }
-=======
-            }
->>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, 
                 "Database error: " + ex.getMessage(), 
@@ -541,11 +482,7 @@ lblForgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
             txtUsername.requestFocus();
             return;
         }
-<<<<<<< HEAD
         
-=======
-
->>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
         // Password validation
         if (password.length() < 6) {
             JOptionPane.showMessageDialog(this,
