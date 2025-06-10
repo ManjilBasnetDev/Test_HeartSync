@@ -193,56 +193,9 @@ public class Register extends JFrame {
         confirmField.setBackground(Color.WHITE);
         confirmField.setOpaque(true);
 
-        // Security questions setup
-        favoriteColorField.setText("FAVORITE COLOR");
-        favoriteColorField.setForeground(new Color(136, 136, 136));
-        favoriteColorField.setBackground(Color.WHITE);
-        favoriteColorField.setOpaque(true);
-        favoriteColorField.setDocument(new LengthRestrictedDocument(50));
+        // Security questions setup handled by createStyledTextField in initComponents
+// No need to set placeholders or listeners here as createStyledTextField already does it.
 
-        firstSchoolField.setText("FIRST SCHOOL");
-        firstSchoolField.setForeground(new Color(136, 136, 136));
-        firstSchoolField.setBackground(Color.WHITE);
-        firstSchoolField.setOpaque(true);
-        firstSchoolField.setDocument(new LengthRestrictedDocument(50));
-
-        // Add focus listeners for favorite color field
-        favoriteColorField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (favoriteColorField.getText().equals("FAVORITE COLOR")) {
-                    favoriteColorField.setText("");
-                    favoriteColorField.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (favoriteColorField.getText().isEmpty()) {
-                    favoriteColorField.setText("FAVORITE COLOR");
-                    favoriteColorField.setForeground(new Color(136, 136, 136));
-                }
-            }
-        });
-
-        // Add focus listeners for first school field
-        firstSchoolField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (firstSchoolField.getText().equals("FIRST SCHOOL")) {
-                    firstSchoolField.setText("");
-                    firstSchoolField.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (firstSchoolField.getText().isEmpty()) {
-                    firstSchoolField.setText("FIRST SCHOOL");
-                    firstSchoolField.setForeground(new Color(136, 136, 136));
-                }
-            }
-        });
     }
 
     // Add this inner class for character limit
