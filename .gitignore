@@ -1,11 +1,11 @@
 # Build output directories
-/build/
 /target/
+/build/
 
 # Compiled class files
 *.class
 
-# IDE settings (optional)
-.nb-gradle/
+# IDE settings
 .idea/
 *.iml
+.nb-gradle/

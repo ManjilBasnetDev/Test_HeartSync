@@ -25,7 +25,7 @@ public class Swipe extends JFrame {
     private static final Color CLOSE_BUTTON_COLOR = new Color(231, 76, 60); // Red for close button
     
     private final JPanel mainPanel;
-    private final JPanel cardPanel;
+    private JPanel cardPanel;
     private final JLabel imageLabel;
     private final JLabel nameLabel;
     private final JLabel ageLabel;
@@ -365,9 +365,7 @@ public class Swipe extends JFrame {
             JOptionPane.INFORMATION_MESSAGE);
         showNextProfile();
     }
-<<<<<<< HEAD
     
-=======
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Swipe.class.getName());
 
@@ -397,28 +395,32 @@ public class Swipe extends JFrame {
         jButton1.setText("Next");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                // TODO: Implement Next button logic or call showNextProfile();
+                showNextProfile();
             }
         });
 
         jButton2.setText("Back");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                // TODO: Implement Back button logic or call showPreviousProfile();
+                showPreviousProfile();
             }
         });
 
         jButton3.setText("Like");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                // TODO: Implement Like button logic or call likeCurrentProfile();
+                likeCurrentProfile();
             }
         });
 
         jButton4.setText("Reject");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                // TODO: Implement Reject button logic or call rejectCurrentProfile();
+                rejectCurrentProfile();
             }
         });
 
@@ -512,7 +514,6 @@ public class Swipe extends JFrame {
     /**
      * @param args the command line arguments
      */
->>>>>>> origin/main
     public static void main(String args[]) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -525,11 +526,9 @@ public class Swipe extends JFrame {
             frame.setVisible(true);
         });
     }
-<<<<<<< HEAD
-=======
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel cardPanel;
+    // private javax.swing.JPanel cardPanel; // Duplicate removed
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -539,5 +538,4 @@ public class Swipe extends JFrame {
     private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
->>>>>>> origin/main
 }
