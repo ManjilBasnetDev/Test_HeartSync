@@ -470,7 +470,7 @@ public class Swipe extends JFrame {
             }
         });
 
-        jButton6.setText("Message");
+        jButton6.setText("Messages");
 
         jButton7.setText("More");
 
