@@ -4,9 +4,12 @@
  */
 package heartsyncdatingapp;
 
+import heartsyncdatingapp.View.Register;
+import heartsyncdatingapp.model.LoginFinal;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
 import javax.swing.*;
 
 /**
@@ -193,10 +196,9 @@ public class HomePage extends JFrame {
         });
         
         loginButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Login functionality coming soon!",
-                "Coming Soon",
-                JOptionPane.INFORMATION_MESSAGE);
+            LoginFinal loginPage = new LoginFinal();
+            loginPage.setLocationRelativeTo(null);
+            loginPage.setVisible(true);
         });
         
         return navPanel;
@@ -330,51 +332,148 @@ public class HomePage extends JFrame {
         
         // Add action listeners
         loginButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Login functionality coming soon!",
-                "Coming Soon",
-                JOptionPane.INFORMATION_MESSAGE);
+            LoginFinal loginPage = new LoginFinal();
+            loginPage.setLocationRelativeTo(null);
+            loginPage.setVisible(true);
         });
         
         createAccountButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Registration functionality coming soon!",
-                "Coming Soon",
-                JOptionPane.INFORMATION_MESSAGE);
+            Register registerPage = new Register();
+            registerPage.setLocationRelativeTo(null);
+            registerPage.setVisible(true);
         });
         
         // Load and add images
         try {
             // Load couple image
             ImageIcon coupleIcon = null;
-            java.net.URL coupleUrl = getClass().getResource("/ImagePicker/HomePageCoupleImg.png");
-            if (coupleUrl != null) {
-                coupleIcon = new ImageIcon(coupleUrl);
+            File coupleFile = new File("src/ImagePicker/HomePageCoupleImg.png");
+            if (coupleFile.exists()) {
+                coupleIcon = new ImageIcon(coupleFile.getAbsolutePath());
                 Image coupleImg = coupleIcon.getImage().getScaledInstance(400, 560, Image.SCALE_SMOOTH);
                 coupleImageLabel = new JLabel(new ImageIcon(coupleImg));
                 coupleImageLabel.setBounds(720, 20, 400, 560);
             } else {
-                System.err.println("Could not find couple image resource");
-                coupleImageLabel = new JLabel("Couple Image");
+                System.err.println("Could not find couple image at: " + coupleFile.getAbsolutePath());
+                // Create a placeholder panel with gradient background
+                JPanel couplePlaceholder = new JPanel() {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        Graphics2D g2d = (Graphics2D) g;
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        
+                        // Create gradient paint
+                        GradientPaint gp = new GradientPaint(0, 0, new Color(255, 182, 193),
+                                                            getWidth(), getHeight(), new Color(255, 218, 185));
+                        g2d.setPaint(gp);
+                        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                        
+                        // Add a heart shape
+                        g2d.setColor(new Color(255, 105, 180));
+                        int heartSize = 100;
+                        int x = (getWidth() - heartSize) / 2;
+                        int y = (getHeight() - heartSize) / 2;
+                        drawHeart(g2d, x, y, heartSize);
+                    }
+                    
+                    private void drawHeart(Graphics2D g2d, int x, int y, int size) {
+                        int[] xPoints = new int[]{
+                            x + size/2, x + size, x + size/2, x
+                        };
+                        int[] yPoints = new int[]{
+                            y + size/4, y + size/2, y + size, y + size/2
+                        };
+                        g2d.fillPolygon(xPoints, yPoints, 4);
+                        g2d.fillOval(x, y, size/2, size/2);
+                        g2d.fillOval(x + size/2, y, size/2, size/2);
+                    }
+                };
+                couplePlaceholder.setOpaque(false);
+                couplePlaceholder.setBounds(720, 20, 400, 560);
+                coupleImageLabel = new JLabel();
+                coupleImageLabel.setBounds(720, 20, 400, 560);
+                coupleImageLabel.add(couplePlaceholder);
             }
 
             // Load hand image
             ImageIcon handIcon = null;
-            java.net.URL handUrl = getClass().getResource("/ImagePicker/HomePageHandImg.png");
-            if (handUrl != null) {
-                handIcon = new ImageIcon(handUrl);
+            File handFile = new File("src/ImagePicker/HomePageHandImg.png");
+            if (handFile.exists()) {
+                handIcon = new ImageIcon(handFile.getAbsolutePath());
                 Image handImg = handIcon.getImage().getScaledInstance(200, 280, Image.SCALE_SMOOTH);
                 handImageLabel = new JLabel(new ImageIcon(handImg));
                 handImageLabel.setBounds(450, 60, 200, 280);
             } else {
-                System.err.println("Could not find hand image resource");
-                handImageLabel = new JLabel("Hand Image");
+                System.err.println("Could not find hand image at: " + handFile.getAbsolutePath());
+                // Create a placeholder panel with gradient background
+                JPanel handPlaceholder = new JPanel() {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        Graphics2D g2d = (Graphics2D) g;
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        
+                        // Create gradient paint
+                        GradientPaint gp = new GradientPaint(0, 0, new Color(255, 218, 185),
+                                                            getWidth(), getHeight(), new Color(255, 182, 193));
+                        g2d.setPaint(gp);
+                        g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                        
+                        // Add a decorative element
+                        g2d.setColor(new Color(255, 105, 180));
+                        g2d.setStroke(new BasicStroke(3));
+                        int margin = 20;
+                        g2d.drawRoundRect(margin, margin, getWidth() - 2*margin, getHeight() - 2*margin, 15, 15);
+                    }
+                };
+                handPlaceholder.setOpaque(false);
+                handPlaceholder.setBounds(450, 60, 200, 280);
+                handImageLabel = new JLabel();
+                handImageLabel.setBounds(450, 60, 200, 280);
+                handImageLabel.add(handPlaceholder);
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Error loading images: " + e.getMessage());
-            coupleImageLabel = new JLabel("Couple Image");
-            handImageLabel = new JLabel("Hand Image");
+            
+            // Create placeholder panels with the same styling as above
+            JPanel couplePlaceholder = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    GradientPaint gp = new GradientPaint(0, 0, new Color(255, 182, 193),
+                                                        getWidth(), getHeight(), new Color(255, 218, 185));
+                    g2d.setPaint(gp);
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                }
+            };
+            couplePlaceholder.setOpaque(false);
+            couplePlaceholder.setBounds(720, 20, 400, 560);
+            
+            JPanel handPlaceholder = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    GradientPaint gp = new GradientPaint(0, 0, new Color(255, 218, 185),
+                                                        getWidth(), getHeight(), new Color(255, 182, 193));
+                    g2d.setPaint(gp);
+                    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                }
+            };
+            handPlaceholder.setOpaque(false);
+            handPlaceholder.setBounds(450, 60, 200, 280);
+            
+            coupleImageLabel = new JLabel();
+            handImageLabel = new JLabel();
+            coupleImageLabel.setBounds(720, 20, 400, 560);
+            handImageLabel.setBounds(450, 60, 200, 280);
+            coupleImageLabel.add(couplePlaceholder);
+            handImageLabel.add(handPlaceholder);
         }
         
         // Add components
