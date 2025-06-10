@@ -21,7 +21,11 @@ public class UserRegisterDAO {
     }
     
     public boolean createUser(User user) {
+<<<<<<< HEAD
         String sql = "INSERT INTO users (username, password, user_type, date_of_birth) VALUES (?, ?, ?, ?)";
+=======
+        String sql = "INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)";
+>>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
         
         try {
             if (connection == null || connection.isClosed()) {
@@ -32,7 +36,10 @@ public class UserRegisterDAO {
                 stmt.setString(1, user.getUsername());
                 stmt.setString(2, user.getPassword());
                 stmt.setString(3, user.getUserType());
+<<<<<<< HEAD
                 stmt.setString(4, user.getDateOfBirth());
+=======
+>>>>>>> 9fab3b964feff7b1fe099c4fea3e5e484c5c2476
                 
                 return stmt.executeUpdate() > 0;
             }
