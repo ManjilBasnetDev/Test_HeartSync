@@ -4,15 +4,22 @@
  */
 package heartsyncdatingapp.model;
 
-import heartsyncdatingapp.controller.ShowHideController;
-import heartsyncdatingapp.dao.UserDAOLogin;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.sql.SQLException;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+
+import heartsyncdatingapp.controller.ShowHideController;
+import heartsyncdatingapp.dao.UserDAOLogin;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license

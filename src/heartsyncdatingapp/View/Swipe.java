@@ -365,6 +365,7 @@ public class Swipe extends JFrame {
             JOptionPane.INFORMATION_MESSAGE);
         showNextProfile();
     }
+    
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Swipe.class.getName());
 
@@ -394,6 +395,7 @@ public class Swipe extends JFrame {
         jButton1.setText("Next");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // TODO: Implement Next button logic or call showNextProfile();
                 showNextProfile();
             }
         });
@@ -401,6 +403,7 @@ public class Swipe extends JFrame {
         jButton2.setText("Back");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // TODO: Implement Back button logic or call showPreviousProfile();
                 showPreviousProfile();
             }
         });
@@ -408,6 +411,7 @@ public class Swipe extends JFrame {
         jButton3.setText("Like");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // TODO: Implement Like button logic or call likeCurrentProfile();
                 likeCurrentProfile();
             }
         });
@@ -415,6 +419,7 @@ public class Swipe extends JFrame {
         jButton4.setText("Reject");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // TODO: Implement Reject button logic or call rejectCurrentProfile();
                 rejectCurrentProfile();
             }
         });
@@ -465,7 +470,7 @@ public class Swipe extends JFrame {
             }
         });
 
-        jButton6.setText("Message");
+        jButton6.setText("Messages");
 
         jButton7.setText("More");
 
@@ -509,7 +514,6 @@ public class Swipe extends JFrame {
     /**
      * @param args the command line arguments
      */
-    
     public static void main(String args[]) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -524,7 +528,7 @@ public class Swipe extends JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-
+    // private javax.swing.JPanel cardPanel; // Duplicate removed
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;

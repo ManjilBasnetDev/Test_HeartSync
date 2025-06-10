@@ -1,2 +1,11 @@
+# Build output directories
+/target/
 /build/
-/nbproject/private/
+
+# Compiled class files
+*.class
+
+# IDE settings
+.idea/
+*.iml
+.nb-gradle/
