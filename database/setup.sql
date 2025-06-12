@@ -36,4 +36,17 @@ CREATE TABLE IF NOT EXISTS health_data (
     measurement_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create reports table
+CREATE TABLE IF NOT EXISTS reports (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    reporter_id INT NOT NULL,
+    reported_user_id INT NOT NULL,
+    reason VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE
 ); 
